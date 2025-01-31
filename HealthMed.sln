@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microservices", "Microservices", "{76FF769B-28C0-442D-A8E2-E48C5910E25A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthMed.Auth", "src\HealthMed.Auth\HealthMed.Auth.csproj", "{378C0B49-A6CE-4635-A452-A91C23EE982C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Auth", "Auth", "{46564795-E4EC-4CB1-897D-7842C9D3DC98}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Patient", "Patient", "{15755508-BF84-49B0-BFA9-23B11522FFA4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doctor", "Doctor", "{977F7DAB-3FF3-4D05-B4EE-E0ED33C331AB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{FE5785C9-6B33-439F-BB1E-34F36310985F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMedAuthTest", "src\HealthMedAuthTest\HealthMedAuthTest.csproj", "{3F0F6F90-3556-42D9-9929-857D9CBCE50A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{378C0B49-A6CE-4635-A452-A91C23EE982C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{378C0B49-A6CE-4635-A452-A91C23EE982C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{378C0B49-A6CE-4635-A452-A91C23EE982C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{378C0B49-A6CE-4635-A452-A91C23EE982C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F0F6F90-3556-42D9-9929-857D9CBCE50A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F0F6F90-3556-42D9-9929-857D9CBCE50A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F0F6F90-3556-42D9-9929-857D9CBCE50A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F0F6F90-3556-42D9-9929-857D9CBCE50A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{378C0B49-A6CE-4635-A452-A91C23EE982C} = {46564795-E4EC-4CB1-897D-7842C9D3DC98}
+		{46564795-E4EC-4CB1-897D-7842C9D3DC98} = {76FF769B-28C0-442D-A8E2-E48C5910E25A}
+		{15755508-BF84-49B0-BFA9-23B11522FFA4} = {76FF769B-28C0-442D-A8E2-E48C5910E25A}
+		{977F7DAB-3FF3-4D05-B4EE-E0ED33C331AB} = {76FF769B-28C0-442D-A8E2-E48C5910E25A}
+		{3F0F6F90-3556-42D9-9929-857D9CBCE50A} = {FE5785C9-6B33-439F-BB1E-34F36310985F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {00796D6C-95D3-4960-AED5-AEC2754849E6}
+	EndGlobalSection
+EndGlobal

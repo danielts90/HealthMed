@@ -18,7 +18,7 @@ namespace HealthMed.Doctors.Controllers
         }
 
         [HttpPost]
-        [Route("add-worktime/{docotorId:int}")]
+        [Route("add-worktime/{doctorId:int}")]
         public async Task<IActionResult> AddWorkTime(int doctorId,[FromBody]DoctorsWorkTime workTime)
         {
             try
@@ -34,7 +34,7 @@ namespace HealthMed.Doctors.Controllers
 
 
         [HttpPut]
-        [Route("update-worktime/{docotorId:int}")]
+        [Route("update-worktime/{doctorId:int}")]
         public async Task<IActionResult> UpdateWorkTime(int doctorId, [FromBody] DoctorsWorkTime workTime)
         {
             try
@@ -49,7 +49,7 @@ namespace HealthMed.Doctors.Controllers
         }
 
         [HttpGet]
-        [Route("get-worktime/{docotorId:int}")]
+        [Route("get-worktime/{doctorId:int}")]
         public async Task<IActionResult> GetWorkTimeByDoctor(int doctorId)
         {
             try

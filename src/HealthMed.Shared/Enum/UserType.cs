@@ -1,4 +1,4 @@
-﻿namespace HealthMed.Auth.Enum
+﻿namespace HealthMed.Shared.Enum
 {
     public enum UserType
     {

@@ -1,5 +1,7 @@
 ﻿using HealthMed.Auth.Entities;
 using HealthMed.Auth.Interfaces.Services;
+using HealthMed.Shared.Dtos;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,17 +11,12 @@ namespace HealthMed.Auth.Services
 {
     public class JwtService : IJwtService
     {
-        private readonly string _secret;
-        private readonly string _issuer;
-        private readonly string _audience;
-        private readonly int _expirationMinutes;
+        private readonly JwtSettings _jwtSettings;
 
-        public JwtService(IConfiguration config)
+
+        public JwtService(IOptions<JwtSettings> jwtSettings)
         {
-            _secret = config["JwtSettings:Secret"];
-            _issuer = config["JwtSettings:Issuer"];
-            _audience = config["JwtSettings:Audience"];
-            _expirationMinutes = int.Parse(config["JwtSettings:ExpirationMinutes"]);
+            _jwtSettings = jwtSettings.Value;
         }
 
         public string GetJwtToken(User user)
@@ -33,14 +30,14 @@ namespace HealthMed.Auth.Services
                 new Claim(ClaimTypes.Role, user.UserType.ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secret));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: _issuer,
-                audience: _audience,
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(_expirationMinutes),
+                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpirationMinutes),
                 signingCredentials: credentials
             );
 

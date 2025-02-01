@@ -1,6 +1,7 @@
 ﻿using HealthMed.Auth.Context;
 using HealthMed.Auth.Entities;
 using HealthMed.Auth.Repositories.Interfaces;
+using HealthMed.Shared.Repositories;
 
 namespace HealthMed.Auth.Repositories
 {

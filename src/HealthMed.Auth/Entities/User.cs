@@ -1,4 +1,5 @@
-﻿using HealthMed.Auth.Enum;
+﻿using HealthMed.Shared.Entities;
+using HealthMed.Shared.Enum;
 
 namespace HealthMed.Auth.Entities
 {

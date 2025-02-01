@@ -1,4 +1,4 @@
-﻿namespace HealthMed.Auth.Exceptions
+﻿namespace HealthMed.Shared.Exceptions
 {
     public class InvalidPasswordException : Exception
     {
@@ -19,5 +19,19 @@
         public InvalidUserException() : base("Usuário inválido.") { }
         public InvalidUserException(string message) : base(message) { }
         public InvalidUserException(string message, Exception innerException) : base(message, innerException) { }
+    }
+
+    public class RegisterAlreadyExistsException : Exception
+    {
+        public RegisterAlreadyExistsException() : base("Registro já existe na base de dados.") { }
+        public RegisterAlreadyExistsException(string message) : base(message) { }
+        public RegisterAlreadyExistsException(string message, Exception innerException) : base(message, innerException) { }
+    }
+
+    public class RegisterNotFoundException : Exception
+    {
+        public RegisterNotFoundException() : base("Registro não encontrado na base de dados.") { }
+        public RegisterNotFoundException(string message) : base(message) { }
+        public RegisterNotFoundException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

@@ -1,17 +1,16 @@
-﻿using HealthMed.Auth.Context;
-using HealthMed.Auth.Entities;
-using HealthMed.Auth.Repositories.Interfaces;
+﻿using HealthMed.Shared.Entities;
+using HealthMed.Shared.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace HealthMed.Auth.Repositories
+namespace HealthMed.Shared.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : EntityBase
     {
-        private readonly HealthMedDbContext _context;
+        private readonly DbContext _context;
         private readonly DbSet<T> _dbSet;
 
-        public GenericRepository(HealthMedDbContext context)
+        public GenericRepository(DbContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();
@@ -24,10 +23,11 @@ namespace HealthMed.Auth.Repositories
             return entity;
         }
 
-        public async Task UpdateAsync(T entity)
+        public async Task<T> UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
             await _context.SaveChangesAsync();
+            return entity;
         }
 
         public async Task DeleteAsync(T entity)

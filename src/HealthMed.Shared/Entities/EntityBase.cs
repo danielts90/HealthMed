@@ -1,4 +1,4 @@
-﻿namespace HealthMed.Auth.Entities
+﻿namespace HealthMed.Shared.Entities
 {
     public class EntityBase
     {

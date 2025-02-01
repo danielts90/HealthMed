@@ -1,5 +1,5 @@
 ﻿using HealthMed.Auth.Entities;
-using HealthMed.Auth.Exceptions;
+using HealthMed.Shared.Exceptions;
 using HealthMed.Auth.Interfaces.Services;
 using HealthMed.Auth.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;

@@ -1,11 +1,10 @@
 ﻿using HealthMed.Auth.Entities;
-using HealthMed.Auth.Enum;
 using HealthMed.Auth.Services;
-using Microsoft.Extensions.Configuration;
+using HealthMed.Shared.Dtos;
+using HealthMed.Shared.Enum;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Moq;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
 
 namespace HealthMedAuthTest
@@ -16,15 +15,16 @@ namespace HealthMedAuthTest
         public void GetJwtToken_Should_Return_Valid_Token()
         {
             // Arrange
-            var configMock = new Mock<IConfiguration>();
-            var jwtSettingsSection = new Mock<IConfigurationSection>();
+            var jwtSettings = new JwtSettings
+            {
+                Secret = "supersecretkey12345678901234567890",
+                Issuer = "testIssuer",
+                Audience = "testAudience",
+                ExpirationMinutes = 60
+            };
 
-            configMock.Setup(c => c["JwtSettings:Secret"]).Returns("supersecretkey12345678901234567890");
-            configMock.Setup(c => c["JwtSettings:Issuer"]).Returns("testIssuer");
-            configMock.Setup(c => c["JwtSettings:Audience"]).Returns("testAudience");
-            configMock.Setup(c => c["JwtSettings:ExpirationMinutes"]).Returns("60");
-
-            var jwtService = new JwtService(configMock.Object);
+            var settingsMock = Options.Create(jwtSettings);
+            var jwtService = new JwtService(settingsMock);
 
             var user = new User
             {
@@ -43,7 +43,7 @@ namespace HealthMedAuthTest
 
             // Validar token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes("supersecretkey12345678901234567890");
+            var key = Encoding.UTF8.GetBytes(settingsMock.Value.Secret);
 
             var validationParams = new TokenValidationParameters
             {

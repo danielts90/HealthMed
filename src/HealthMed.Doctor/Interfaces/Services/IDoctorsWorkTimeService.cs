@@ -7,5 +7,6 @@ namespace HealthMed.Doctors.Interfaces.Services
         Task<DoctorsWorkTime> AddWorkTime(int doctorId, DoctorsWorkTime workTime);
         Task<DoctorsWorkTime> UpdateWorkTime(int doctorId, DoctorsWorkTime workTime);
         Task<IEnumerable<DoctorsWorkTime>> GetDoctorWorkTime(int doctorId);
+        Task IsValidWorkTime(DateTime dateAppointment, int doctorId);
     }
 }

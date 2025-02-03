@@ -20,6 +20,8 @@ builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IDoctorsWorkTimeRepository, DoctorsWorkTimeRepository>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IDoctorsWorkTimeService, DoctorsWorkTimeService>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 
 builder.Services.AddDbContext<HealthMedDoctorsDbContext>(options =>
@@ -48,6 +50,9 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireDoctorRole", policy =>
         policy.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Doctor"));
+
+    options.AddPolicy("RequirePatientRole", policy =>
+        policy.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Patient"));
 });
 
 

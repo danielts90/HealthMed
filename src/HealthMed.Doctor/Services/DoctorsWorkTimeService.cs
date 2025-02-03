@@ -40,6 +40,20 @@ namespace HealthMed.Doctors.Services
             return await _doctorsWorkTimeRepository.FindByAsync(o => o.DoctorId == doctorId);
         }
 
+        public async Task IsValidWorkTime(DateTime dateAppointment, int doctorId)
+        {
+            var doctorWorkTime = await _doctorsWorkTimeRepository.FirstOrDefaultAsync(o => o.DoctorId == doctorId && o.WeekDay == (int)dateAppointment.DayOfWeek);
+            if (doctorWorkTime == null) throw new InvalidOperationException("O médico não atende neste dia da semana.");
+
+            var appointmentTime = dateAppointment.TimeOfDay;
+
+            var insideDoctorWorkingHours = appointmentTime >= doctorWorkTime.StartTime && appointmentTime <= doctorWorkTime.ExitTime;
+            if (!insideDoctorWorkingHours) throw new InvalidOperationException("O médico atende neste horário.");
+
+            var insideDoctorInterval = appointmentTime >= doctorWorkTime.StartInterval && appointmentTime < doctorWorkTime.FinishInterval;
+            if(insideDoctorInterval) throw new InvalidOperationException("O médico não pode atender no horário de descanso.");
+        }
+
         private async Task CheckRegister(int doctorId, DoctorsWorkTime doctorWorkTime)
         {
             var existentRegister = await _doctorsWorkTimeRepository.FirstOrDefaultAsync(o => o.DoctorId == doctorId && o.WeekDay == doctorWorkTime.WeekDay);
@@ -51,5 +65,7 @@ namespace HealthMed.Doctors.Services
             if (doctor is null) throw new RegisterNotFoundException("Médico não encontrado na base de dados.");
             if (doctor.UserId != _userContext.GetUserId()) throw new InvalidOperationException("Não é possível alterar o registro de outro médico.");
         }
+
+
     }
 }

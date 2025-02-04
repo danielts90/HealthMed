@@ -25,6 +25,11 @@ namespace HealthMed.Doctors.Context.Configuration
                 .HasDefaultValue(AppointmentStatus.Created)
                 .IsRequired();
 
+            builder.Property(u => u.CreatedAt)
+                .HasColumnType("timestamp")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .ValueGeneratedNever();
+
             builder.HasOne(p => p.Doctor)
                 .WithMany()
                 .HasForeignKey(p => p.DoctorId)

@@ -21,7 +21,8 @@ namespace HealthMed.Auth.Context.Configuration
                 .IsRequired();
             builder.Property(u => u.CreatedAt)
                 .HasColumnType("timestamp")
-                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .ValueGeneratedNever();
         }
     }
 }

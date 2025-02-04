@@ -9,5 +9,6 @@ namespace HealthMed.Patients.Entities
         public int DoctorId { get; set; }
         public DateTime DateAppointment { get; set; }
         public AppointmentStatus Status { get; set; }
+        public string CancelReason { get; set; }
     }
 }

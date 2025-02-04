@@ -1,4 +1,5 @@
 ﻿using HealthMed.Shared.Entities;
+using HealthMed.Shared.Enum;
 
 namespace HealthMed.Doctors.Entities
 {
@@ -9,5 +10,6 @@ namespace HealthMed.Doctors.Entities
         public string? Email { get; set; }
         public string? CRM { get; set; }
         public string? CPF { get; set; }
+        public DoctorMedicalSpeciality Speciality { get; set; }
     }
 }

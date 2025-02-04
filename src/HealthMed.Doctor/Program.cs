@@ -22,6 +22,7 @@ builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IDoctorsWorkTimeService, DoctorsWorkTimeService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IDoctorAvailabilityService, DoctorAvailabilityService>();
 
 
 builder.Services.AddDbContext<HealthMedDoctorsDbContext>(options =>
@@ -45,7 +46,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireDoctorRole", policy =>

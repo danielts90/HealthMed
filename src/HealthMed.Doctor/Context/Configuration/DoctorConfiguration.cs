@@ -15,6 +15,7 @@ namespace HealthMed.Doctors.Context.Configuration
             builder.Property(d => d.CRM).IsRequired();
             builder.Property(d => d.CPF).IsRequired();
             builder.Property(d => d.UserId).IsRequired();
+            builder.Property(d => d.Speciality).IsRequired();
             builder.Property(u => u.CreatedAt)
                 .HasColumnType("timestamp")
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");

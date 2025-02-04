@@ -31,7 +31,6 @@ namespace HealthMed.Doctors.Services
         public async Task<DoctorsWorkTime> UpdateWorkTime(int doctorId, DoctorsWorkTime doctorWorkTime)
         {
             await CheckDoctor(doctorId);
-            await CheckRegister(doctorId, doctorWorkTime);
             return await _doctorsWorkTimeRepository.UpdateAsync(doctorWorkTime);
         }
 

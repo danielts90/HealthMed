@@ -10,7 +10,7 @@ namespace HealthMed.Doctors.Entities
         public string PatientName { get; set; }
         public int PatientId { get; set; }
         public AppointmentStatus Status { get; set; }
-        public Doctor Doctor { get; set; }
+        public Doctor? Doctor { get; set; }
 
     }
 

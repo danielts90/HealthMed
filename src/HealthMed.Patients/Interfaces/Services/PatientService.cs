@@ -6,5 +6,6 @@ namespace HealthMed.Patients.Interfaces.Services
     {
         Task<Patient> AddPatient(Patient patient);
         Task<Patient> UpdatePatient(Patient patient);
+        Task<Patient> GetPatientByUserId();
     }
 }

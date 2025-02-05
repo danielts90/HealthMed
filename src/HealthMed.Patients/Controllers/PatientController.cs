@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMed.Patients.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     [Authorize(Policy = "Patient")]
     public class PatientController : ControllerBase
     {

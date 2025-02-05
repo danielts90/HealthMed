@@ -32,11 +32,11 @@ namespace HealthMedDoctorsTest
             _workTimeService.Setup(wt => wt.GetDoctorWorkTime(doctorId)).ReturnsAsync(new List<DoctorsWorkTime>());
 
             //act 
-            var times = await _service.GetAvailableSlotsAsync(doctorId, dateAppointmet);
+            var times = await _service.GetAvailableSlots(doctorId, dateAppointmet);
 
             //Assert 
-            Assert.NotNull(times);
-            Assert.Equal(times.Count(), 0);
+            Assert.NotNull(times.Times);
+            Assert.Equal(times.Times.Count(), 0);
         }
 
         [Fact]
@@ -75,11 +75,11 @@ namespace HealthMedDoctorsTest
             _workTimeService.Setup(wt => wt.GetDoctorWorkTime(doctorId)).ReturnsAsync(workTimeList);
 
             //act 
-            var times = await _service.GetAvailableSlotsAsync(doctorId, dateAppointmet);
+            var times = await _service.GetAvailableSlots(doctorId, dateAppointmet);
 
             //Assert 
             Assert.NotNull(times);
-            Assert.Equal(slotsList, times);
+            Assert.Equal(slotsList, times.Times);
         }
 
         [Fact]
@@ -133,11 +133,11 @@ namespace HealthMedDoctorsTest
             _workTimeService.Setup(wt => wt.GetDoctorWorkTime(doctorId)).ReturnsAsync(workTimeList);
 
             //act 
-            var times = await _service.GetAvailableSlotsAsync(doctorId, dateAppointmet);
+            var times = await _service.GetAvailableSlots(doctorId, dateAppointmet);
 
             //Assert 
             Assert.NotNull(times);
-            Assert.Equal(slotsList, times);
+            Assert.Equal(slotsList, times.Times);
         }
     }
 }

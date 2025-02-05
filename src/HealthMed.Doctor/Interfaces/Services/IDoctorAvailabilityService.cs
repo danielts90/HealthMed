@@ -1,7 +1,9 @@
-﻿namespace HealthMed.Doctors.Interfaces.Services
+﻿using HealthMed.Shared.Dtos;
+
+namespace HealthMed.Doctors.Interfaces.Services
 {
     public interface IDoctorAvailabilityService
     {
-        Task<IEnumerable<TimeSpan>> GetAvailableSlotsAsync(int doctorId, DateTime date);
+        Task<DoctorScheduleDto> GetAvailableSlots(int doctorId, DateTime date);
     }
 }

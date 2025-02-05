@@ -1,6 +1,7 @@
 ﻿using HealthMed.Doctors.Entities;
 using HealthMed.Shared.Enum;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace HealthMed.Doctors.Context.Configuration
@@ -26,9 +27,10 @@ namespace HealthMed.Doctors.Context.Configuration
                 .IsRequired();
 
             builder.Property(u => u.CreatedAt)
-                .HasColumnType("timestamp")
+                .HasColumnType("timestamp with time zone")
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .ValueGeneratedNever();
+                .ValueGeneratedNever()
+                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
             builder.HasOne(p => p.Doctor)
                 .WithMany()

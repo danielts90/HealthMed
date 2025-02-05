@@ -42,7 +42,8 @@ namespace HealthMed.Doctors.Services
         public async Task<IEnumerable<Appointment>> GetAppointmentsByDoctor(DateTime dateAppointments, int? doctorId = null)
         {
             int? IdDoctor = doctorId ?? _userContext.GetUserId();
-            var appointments = await _appointmentRepository.FindByAsync(o => o.DateAppointment.Date == dateAppointments.Date && o.DoctorId == IdDoctor.Value);
+            var appointments = await _appointmentRepository.FindByAsync(o =>
+                o.DateAppointment.Date.ToUniversalTime() == dateAppointments.Date.ToUniversalTime() && o.DoctorId == IdDoctor.Value);
             return appointments;
         }
 

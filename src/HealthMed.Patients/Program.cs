@@ -1,6 +1,8 @@
 using HealthMed.Patients.Context;
 using HealthMed.Patients.Interfaces.Repositories;
+using HealthMed.Patients.Interfaces.Services;
 using HealthMed.Patients.Repositories;
+using HealthMed.Patients.Services;
 using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Util;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,6 +17,17 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IDoctorsService, DoctorsService>();
+
+
+var doctorApiUrl = builder.Configuration["Apis:Doctor"];
+
+builder.Services.AddTransient<AuthTokenHandler>();
+builder.Services.AddHttpClient("doctors_api", client =>
+{
+    client.BaseAddress = new Uri(doctorApiUrl); 
+}).AddHttpMessageHandler<AuthTokenHandler>();
+
 
 
 builder.Services.AddDbContext<HealthMedPatientsDbContext>(options =>
@@ -38,6 +51,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequirePatientRole", policy =>
+        policy.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Patient"));
+});
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -54,11 +73,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("RequirePatientRole", policy =>
-        policy.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Patient"));
-});
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

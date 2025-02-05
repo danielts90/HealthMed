@@ -23,7 +23,15 @@ namespace HealthMed.Patients.Services
             if (existPatient != null) throw new InvalidOperationException("Já existe um paciente cadastrado com este CPF.");
 
             patient.UserId = _userContext.GetUserId().Value;
+            patient.Name = _userContext.GetName();
+            patient.Email = _userContext.GetUserEmail();
+
             return await _repository.AddAsync(patient);
+        }
+
+        public async Task<Patient> GetPatientByUserId()
+        {
+            return await _repository.FirstOrDefaultAsync(o => o.UserId == _userContext.GetUserId());
         }
 
         public async Task<Patient> UpdatePatient(Patient patient)

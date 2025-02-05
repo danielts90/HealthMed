@@ -1,4 +1,5 @@
 ﻿using HealthMed.Doctors.Interfaces.Services;
+using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Enum;
 
 namespace HealthMed.Doctors.Services
@@ -14,18 +15,21 @@ namespace HealthMed.Doctors.Services
             _appointmentService = appointmentService;
         }
 
-        public async Task<IEnumerable<TimeSpan>> GetAvailableSlotsAsync(int doctorId, DateTime date)
+        public async Task<DoctorScheduleDto> GetAvailableSlots(int doctorId, DateTime date)
         {
             var doctorWorkTimes = await _workTimeService.GetDoctorWorkTime(doctorId);
             var workTimeInDateAppointment = doctorWorkTimes.FirstOrDefault(d => d.WeekDay == (int)date.DayOfWeek);
 
             if (workTimeInDateAppointment == null)
-                return new List<TimeSpan>();
+                return new DoctorScheduleDto();
 
-            var occupiedSlots = (await _appointmentService.GetAppointmentsByDoctor(date, doctorId))
-                                .Where(a => a.Status != AppointmentStatus.Rejected)
-                                .Select(a => a.DateAppointment.TimeOfDay)
-                                .ToHashSet();
+            var appointments = await _appointmentService.GetAppointmentsByDoctor(date, doctorId);
+
+            var occupiedSlots = appointments?.Where(a => a.Status != AppointmentStatus.Rejected)
+                                      .Select(a => a.DateAppointment.TimeOfDay)
+                                      .ToHashSet() ?? new HashSet<TimeSpan>();
+
+
 
             List<TimeSpan> availableSlots = new List<TimeSpan>();
 
@@ -52,7 +56,8 @@ namespace HealthMed.Doctors.Services
 
                 currentSlot = currentSlot.Add(appointmentDuration);
             }
-            return availableSlots;
+
+            return new DoctorScheduleDto { Times  = availableSlots, Price = workTimeInDateAppointment.AppointmentPrice };
         }
     }
 }

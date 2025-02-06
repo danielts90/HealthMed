@@ -11,9 +11,9 @@ namespace HealthMed.Patients.Entities
         public DoctorMedicalSpeciality Speciality { get; set; }
         public DateTime DateAppointment { get; set; }
         public AppointmentStatus Status { get; set; }
-        public string CancelReason { get; set; }
+        public string? CancelReason { get; set; }
         public double Price { get; set; }
 
-        public Patient Patient { get; set; }
+        public Patient? Patient { get; set; }
     }
 }

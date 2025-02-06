@@ -8,7 +8,7 @@ namespace HealthMed.Patients.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "Patient")]
+    [Authorize(Policy = "RequirePatientRole")]
     public class PatientController : ControllerBase
     {
         private readonly IPatientService _patientService;
@@ -24,7 +24,7 @@ namespace HealthMed.Patients.Controllers
         {
             try
             {
-                var result = _patientService.AddPatient(patient);
+                var result = await _patientService.AddPatient(patient);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -39,7 +39,7 @@ namespace HealthMed.Patients.Controllers
         {
             try
             {
-                var result = _patientService.UpdatePatient(patient);
+                var result = await _patientService.UpdatePatient(patient);
                 return Ok(result);
             }
             catch (Exception ex)

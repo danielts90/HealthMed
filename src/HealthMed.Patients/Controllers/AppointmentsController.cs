@@ -7,7 +7,7 @@ namespace HealthMed.Patients.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "Patient")]
+    [Authorize(Policy = "RequirePatientRole")]
     public class AppointmentsController : ControllerBase
     { 
         private readonly IAppointmentService _appointmentsService;
@@ -48,7 +48,7 @@ namespace HealthMed.Patients.Controllers
 
         [HttpPut]
         [Route("cancel-appointment/{id:int}")]
-        public async Task<IActionResult> CancelAppointment(int id, [FromBody] string cancelReason)
+        public async Task<IActionResult> CancelAppointment(int id, [FromQuery] string cancelReason)
         {
             try
             {

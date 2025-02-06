@@ -1,10 +1,13 @@
+using HealthMed.Doctors.Consumers;
 using HealthMed.Doctors.Context;
 using HealthMed.Doctors.Interfaces.Repositories;
 using HealthMed.Doctors.Interfaces.Services;
 using HealthMed.Doctors.Repositories;
 using HealthMed.Doctors.Services;
 using HealthMed.Shared.Dtos;
+using HealthMed.Shared.MassTransit;
 using HealthMed.Shared.Util;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,6 +31,29 @@ builder.Services.AddScoped<IDoctorAvailabilityService, DoctorAvailabilityService
 builder.Services.AddDbContext<HealthMedDoctorsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+builder.Services.AddMassTransit(config =>
+{
+    config.SetKebabCaseEndpointNameFormatter();
+
+    config.AddConsumer<CreateAppointmentConsumer>();
+    config.AddConsumer<CanceledAppointmentConsumer>();
+
+    config.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host("rabbitmq://localhost", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        cfg.ReceiveEndpoint("patient-appointment-queue", e =>
+        {
+            e.ConfigureConsumer<CreateAppointmentConsumer>(ctx);
+            e.ConfigureConsumer<CanceledAppointmentConsumer>(ctx);
+        });
+    });
+});
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));

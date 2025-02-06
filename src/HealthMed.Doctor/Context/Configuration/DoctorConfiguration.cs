@@ -11,6 +11,7 @@ namespace HealthMed.Doctors.Context.Configuration
         {
             builder.ToTable("Doctors");
             builder.HasKey(d => d.Id);
+
             builder.Property(d => d.Name)
                 .IsRequired();
             
@@ -23,6 +24,7 @@ namespace HealthMed.Doctors.Context.Configuration
                 .ValueGeneratedNever().Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
             builder.Property(d => d.CPF).IsRequired();
+            
             builder.Property(d => d.UserId)
                 .IsRequired()
                 .ValueGeneratedNever().Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);

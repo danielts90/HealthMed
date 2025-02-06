@@ -1,8 +1,10 @@
 ﻿using HealthMed.Doctors.Entities;
 using HealthMed.Doctors.Interfaces.Repositories;
 using HealthMed.Doctors.Interfaces.Services;
+using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Enum;
 using HealthMed.Shared.Util;
+using MassTransit;
 
 namespace HealthMed.Doctors.Services
 {
@@ -12,16 +14,20 @@ namespace HealthMed.Doctors.Services
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IDoctorsWorkTimeService _doctorsWorkTimeService;
         private readonly IDoctorService _doctorService;
+        private readonly ISendEndpointProvider _sendEndpointProvider;
+
 
         public AppointmentService(IUserContext userContext,
                                   IAppointmentRepository appointmentRepository,
                                   IDoctorsWorkTimeService doctorsWorkTimeService,
-                                  IDoctorService doctorService)
+                                  IDoctorService doctorService,
+                                  ISendEndpointProvider sendEndpointProvider)
         {
             _userContext = userContext;
             _appointmentRepository = appointmentRepository;
             _doctorsWorkTimeService = doctorsWorkTimeService;
             _doctorService = doctorService;
+            _sendEndpointProvider = sendEndpointProvider;
         }
 
         public async Task<Appointment> CreateAppointment(Appointment appointment)
@@ -57,7 +63,15 @@ namespace HealthMed.Doctors.Services
             appointment.Status = status;
             var updatedAppointment = await _appointmentRepository.UpdateAsync(appointment);
 
-           // Enviar mensagem para a fila
+            var message = new AppointmentDoctorUpdateMessage
+            (
+                appointment.PatientAppointmentId,
+                status
+            );
+
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("queue:doctor-appointment-queue"));
+            await endpoint.Send(message);
+
             return updatedAppointment;
         }
 
@@ -78,6 +92,20 @@ namespace HealthMed.Doctors.Services
 
             if (doctor.UserId != _userContext.GetUserId())
                 throw new InvalidOperationException("Médico não pode alterar consultas de outros médicos.");
+        }
+
+        public async Task<Appointment> AppointmentRejectedByPatient(int patientAppointmentId, string cancelReason)
+        {
+            var appointment = await _appointmentRepository.FirstOrDefaultAsync(o => o.PatientAppointmentId == patientAppointmentId);
+            var doctor = await _doctorService.GetDoctorById(appointment.DoctorId);
+
+            appointment.Status = AppointmentStatus.Rejected;
+            appointment.CancelReason = cancelReason;
+
+            await _appointmentRepository.UpdateAsync(appointment);
+
+            //Notificar Médico por e-mail 
+            return appointment;
         }
     }
 }

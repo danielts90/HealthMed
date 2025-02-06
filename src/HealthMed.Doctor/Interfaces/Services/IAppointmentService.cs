@@ -8,5 +8,6 @@ namespace HealthMed.Doctors.Interfaces.Services
         Task<IEnumerable<Appointment>> GetAppointmentsByDoctor(DateTime dateAppointment, int? doctorId = null);
         Task<Appointment> AcceptAppointment(int appointmentId);
         Task<Appointment> RejectAppointment(int appointmentId);
+        Task<Appointment> AppointmentRejectedByPatient(int patientAppointmentId, string cancelReason);
     }
 }

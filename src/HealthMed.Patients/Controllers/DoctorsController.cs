@@ -6,7 +6,7 @@ namespace HealthMed.Patients.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "Patient")]
+    [Authorize(Policy = "RequirePatientRole")]
     public class DoctorsController : ControllerBase
     {
         private readonly IDoctorsService doctorsService;

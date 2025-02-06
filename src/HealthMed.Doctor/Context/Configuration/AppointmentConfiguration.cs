@@ -22,6 +22,11 @@ namespace HealthMed.Doctors.Context.Configuration
             builder.Property(p => p.DateAppointment)
                 .IsRequired();
 
+            builder.Property(p => p.PatientAppointmentId)
+                .IsRequired();
+
+            builder.Property(p => p.CancelReason);
+
             builder.Property(p => p.Status)
                 .HasDefaultValue(AppointmentStatus.Created)
                 .IsRequired();

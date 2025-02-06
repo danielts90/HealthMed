@@ -86,10 +86,4 @@ Para rodar os testes automatizados:
 - **DoctorAPI:** `/api/doctors`, `/api/doctors/schedule`
 - **PatientAPI:** `/api/patients`, `/api/patients/appointments`
 
----
-## 📜 Entregáveis Mínimos
-🔹 **Desenho da Solução MVP**: Diagrama de arquitetura e justificativas técnicas.  
-🔹 **Demonstração da Infraestrutura**: Aplicação funcionando e chamadas de API.  
-🔹 **Demonstração da Esteira de CI/CD**: Explicação e pipeline de deploy.  
-🔹 **Demonstração do MVP**: Implementação completa dos requisitos funcionais.  
 

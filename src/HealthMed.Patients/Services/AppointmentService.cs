@@ -4,6 +4,8 @@ using HealthMed.Patients.Interfaces.Services;
 using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Enum;
 using HealthMed.Shared.Exceptions;
+using HealthMed.Shared.Templates;
+using HealthMed.Shared.Util;
 using MassTransit;
 
 namespace HealthMed.Patients.Services
@@ -13,27 +15,42 @@ namespace HealthMed.Patients.Services
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IPatientService _patientService;
         private readonly ISendEndpointProvider _sendEndpointProvider;
+        private readonly IEmailService _emailService;
 
 
 
         public AppointmentService(IAppointmentRepository appointmentRepository,
                                   IPatientService patientService,
-                                  ISendEndpointProvider sendEndpointProvider)
+                                  ISendEndpointProvider sendEndpointProvider,
+                                  IEmailService emailService)
 
         {
             _appointmentRepository = appointmentRepository;
             _patientService = patientService;
             _sendEndpointProvider = sendEndpointProvider;
+            _emailService = emailService;
         }
 
         public async Task<Appointment> AppointmentUpdatedDoctor(int apppointmentId, AppointmentStatus status)
         {
             var appointment = await _appointmentRepository.GetByIdAsync(apppointmentId);
+            var patient = await _patientService.GetPatientByPatientId(appointment.PatientId);
             appointment.Status = status;
 
             await _appointmentRepository.UpdateAsync(appointment);
-            //TODO:
-            //NOtificar Paciente
+
+            var statusMessage = status == AppointmentStatus.Accepted ? "<b>Confirmada<b/>" : "<b>Rejeitada<b/>";
+
+            await _emailService.SendMail(new EmailDto
+            {
+                To = patient.Email,
+                Subject = $"Consulta marcada para o dia {appointment.DateAppointment.ToString("f")} foi {statusMessage}",
+                Body = MailTemplates.appointmentUpdated.Replace("{{PACIENTE_NOME}}", patient.Name)
+                                                       .Replace("{{DATA_CONSULTA}}", appointment.DateAppointment.ToString("dd/MM/yyyy"))
+                                                       .Replace("{{HORA_CONSULTA}}", appointment.DateAppointment.ToString("HH:mm"))
+                                                       .Replace("{{MEDICO_NOME}}", appointment.DoctorName)
+                                                       .Replace("{{STATUS_CONSULTA}}", statusMessage),
+            });
 
             return appointment;
         }
@@ -86,7 +103,7 @@ namespace HealthMed.Patients.Services
             var patient = await GetPatientAsync();
             var appointments = await _appointmentRepository.FindByAsync(o => o.PatientId == patient.Id
                                                                && o.Status != AppointmentStatus.Rejected
-                                                               && o.DateAppointment > DateTime.UtcNow);
+                                                               && o.DateAppointment > DateTime.Now);
 
             return appointments;
         }

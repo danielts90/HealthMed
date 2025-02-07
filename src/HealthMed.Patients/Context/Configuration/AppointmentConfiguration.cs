@@ -12,7 +12,9 @@ namespace HealthMed.Patients.Context.Configuration
         {
             builder.ToTable("Appointments");
             builder.HasKey(p => p.Id);
+
             builder.Property(p => p.DateAppointment)
+                .HasColumnType("timestamp")
                 .IsRequired()
                 .ValueGeneratedNever().Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
@@ -46,12 +48,12 @@ namespace HealthMed.Patients.Context.Configuration
                 .WithMany()
                 .HasForeignKey(d => d.PatientId)
                 .OnDelete(DeleteBehavior.Cascade);
-            
+
             builder.Property(u => u.CreatedAt)
-                .HasColumnType("timestamp with time zone")
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .ValueGeneratedNever()
-                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            .HasColumnType("timestamp")
+            .HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .ValueGeneratedOnAdd()
+            .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
         }
     }
 }

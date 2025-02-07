@@ -7,6 +7,7 @@ using HealthMed.Doctors.Services;
 using HealthMed.Shared.Dtos;
 using HealthMed.Shared.MassTransit;
 using HealthMed.Shared.Util;
+using Mailjet.Client;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,7 @@ builder.Services.AddScoped<IDoctorsWorkTimeService, DoctorsWorkTimeService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IDoctorAvailabilityService, DoctorAvailabilityService>();
-
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddDbContext<HealthMedDoctorsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))

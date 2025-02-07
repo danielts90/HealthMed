@@ -29,6 +29,11 @@ namespace HealthMed.Patients.Services
             return await _repository.AddAsync(patient);
         }
 
+        public async Task<Patient> GetPatientByPatientId(int PatientId)
+        {
+            return await _repository.FirstOrDefaultAsync(o => o.Id == PatientId);
+        }
+
         public async Task<Patient> GetPatientByUserId()
         {
             return await _repository.FirstOrDefaultAsync(o => o.UserId == _userContext.GetUserId());

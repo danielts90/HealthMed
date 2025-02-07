@@ -63,21 +63,5 @@ namespace HealthMed.Doctors.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-        [HttpPost]
-        [Route("create-appointment")]
-        [Authorize(Policy = "RequirePatientRole")]
-        public async Task<IActionResult> CreateAppointments([FromBody] Appointment appointment)
-        {
-            try
-            {
-                var appointments = await _appointmentService.CreateAppointment(appointment);
-                return Ok(appointments);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
     }
 }

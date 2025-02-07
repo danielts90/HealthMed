@@ -3,6 +3,7 @@ using System;
 using HealthMed.Doctors.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HealthMed.Doctors.Migrations
 {
     [DbContext(typeof(HealthMedDoctorsDbContext))]
-    partial class HealthMedDoctorsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250207022456_FixingDataFields4")]
+    partial class FixingDataFields4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

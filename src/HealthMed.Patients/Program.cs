@@ -5,7 +5,6 @@ using HealthMed.Patients.Interfaces.Services;
 using HealthMed.Patients.Repositories;
 using HealthMed.Patients.Services;
 using HealthMed.Shared.Dtos;
-using HealthMed.Shared.MassTransit;
 using HealthMed.Shared.Util;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -24,7 +23,7 @@ builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IDoctorsService, DoctorsService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
-
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var doctorApiUrl = builder.Configuration["Apis:Doctor"];
 

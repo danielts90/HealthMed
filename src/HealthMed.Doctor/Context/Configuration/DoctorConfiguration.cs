@@ -33,9 +33,9 @@ namespace HealthMed.Doctors.Context.Configuration
                 .IsRequired();
 
             builder.Property(u => u.CreatedAt)
-                .HasColumnType("timestamp with time zone")
+                .HasColumnType("timestamp")
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
                 .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
         }
     }

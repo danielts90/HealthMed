@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HealthMed.Doctors.Services
+namespace HealthMed.Doctors.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -19,7 +19,7 @@ namespace HealthMed.Doctors.Services
         [HttpGet]
         [Route("slots")]
         [Authorize(Policy = "RequirePatientRole")]
-        public async Task<IActionResult> GetAvailableSlots([FromQuery]int doctorId, [FromQuery] DateTime dateAppointment) 
+        public async Task<IActionResult> GetAvailableSlots([FromQuery] int doctorId, [FromQuery] DateTime dateAppointment)
         {
             try
             {

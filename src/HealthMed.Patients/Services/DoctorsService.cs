@@ -18,9 +18,11 @@ namespace HealthMed.Patients.Services
             return response;
         }
 
-        public Task<IEnumerable<DoctorsDto>> GetDoctors(DoctorMedicalSpeciality speciality)
+        public async Task<IEnumerable<DoctorsDto>> GetDoctors(DoctorMedicalSpeciality speciality)
         {
-            throw new NotImplementedException();
+            var url = $"api/doctorsworktime/get-worktime/{speciality}";
+            var response = await _httpClient.GetFromJsonAsync<IEnumerable<DoctorsDto>>(url);
+            return response;
         }
     }
 }

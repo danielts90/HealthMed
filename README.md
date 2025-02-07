@@ -20,14 +20,14 @@ O desenvolvimento do MVP está sendo realizado pelos alunos do curso **4NETT**, 
 ## 📂 Estrutura do Projeto
 ```
 /Projeto
-├── src/
-│   ├── AuthAPI/
-│   ├── DoctorAPI/
-│   ├── PatientAPI/
+├── Microservices/
+│   ├── Auth/
+│   ├── Doctor/
+│   ├── Patient/
 ├── tests/
-│   ├── AuthAPI.Tests/
-│   ├── DoctorAPI.Tests/
-│   ├── PatientAPI.Tests/
+│   ├── Auth.Tests/
+│   ├── Doctor.Tests/
+│   ├── Patient.Tests/
 ├── docker-compose.yml
 ├── README.md
 ```
@@ -79,11 +79,5 @@ Para rodar os testes automatizados:
 ```sh
  dotnet test
 ```
-
----
-## 📡 Endpoints Principais
-- **AuthAPI:** `/api/auth/login`, `/api/auth/register`
-- **DoctorAPI:** `/api/doctors`, `/api/doctors/schedule`
-- **PatientAPI:** `/api/patients`, `/api/patients/appointments`
 
 

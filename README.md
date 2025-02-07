@@ -15,9 +15,34 @@ O desenvolvimento do MVP está sendo realizado pelos alunos do curso **4NETT**, 
 - **Mensageria:** RabbitMQ
 - **Docker & Kubernetes:** Contêinerização e orquestração
 - **CI/CD:** GitHub Actions
+- **ORM:** Entity Framework Core
+- **Mensageria Avançada:** MassTransit
+- **Testes:** XUnit
 
 ---
-## 📂 Estrutura do Projeto
+## 💂️ Arquitetura
+O projeto segue a arquitetura de **microserviços**, divididos entre **Auth, Doctor e Patient**:
+
+- **AuthAPI:** Gerencia a autenticação e o cadastro de usuários (Médicos e Pacientes). As principais informações do usuário são incluídas no token **JWT**, que é usado pelas outras APIs para autenticação e autorização. A senha do usuário é armazenada de forma segura usando **PasswordHasher**.
+
+- **DoctorAPI:** Responsável por manter o cadastro de médicos e seus respectivos horários de trabalho. Um médico só pode acessar suas próprias informações e consultas, utilizando o **UserId** presente no token JWT. Pacientes podem acessar essa API para listar médicos e verificar a disponibilidade de horários para agendamento de consultas.
+
+- **PatientAPI:** Mantém o cadastro de pacientes e gerencia o **agendamento e cancelamento** de consultas. Apenas usuários com a role de **Paciente** podem acessar esta API. Quando um paciente agenda uma consulta, a informação é salva no banco de dados de **PatientAPI** e uma mensagem é enviada para a fila do **RabbitMQ**. A **DoctorAPI** consome essa fila e notifica o médico por e-mail sobre a nova consulta.
+
+**Fluxo de Mensageria e Concorrência:**
+- Se dois pacientes tentarem marcar a mesma consulta ao mesmo tempo, o **RabbitMQ** resolve o problema de concorrência, garantindo que apenas a primeira mensagem processada seja confirmada.
+- Caso uma consulta seja marcada para um horário indisponível, a **DoctorAPI** rejeita a solicitação e envia uma mensagem para cancelar a consulta automaticamente.
+- Se um paciente cancela uma consulta, a informação é enviada via RabbitMQ para a **DoctorAPI**, que remove a consulta do banco e notifica o médico.
+- Quando um médico confirma ou rejeita uma consulta, a **PatientAPI** é notificada para atualizar o status da consulta e enviar um e-mail ao paciente.
+
+**Projeto Shared:**
+- Contém componentes reutilizáveis entre os microserviços, como:
+  - Serviço de envio de e-mails
+  - Leitura do token JWT para extrair informações do usuário (**IUserContext**)
+  - Repositórios genéricos
+
+---
+## 📺 Estrutura do Projeto
 ```
 /Projeto
 ├── Microservices/
@@ -28,6 +53,7 @@ O desenvolvimento do MVP está sendo realizado pelos alunos do curso **4NETT**, 
 │   ├── Auth.Tests/
 │   ├── Doctor.Tests/
 │   ├── Patient.Tests/
+├── Shared/
 ├── docker-compose.yml
 ├── README.md
 ```
@@ -49,16 +75,16 @@ O desenvolvimento do MVP está sendo realizado pelos alunos do curso **4NETT**, 
 ✅ **Segurança**: Proteção dos dados dos pacientes seguindo as melhores práticas.  
 
 ---
-## 🏗️ Configuração do Ambiente
+## 🏰 Configuração do Ambiente
 1. Clone este repositório:
    ```sh
    git clone https://github.com/danielts90/HealthMed.git
    ```
-2. Instale o **.NET 8 SDK** se ainda não tiver:
+2. Instale o **.NET 8 SDK**:
    ```sh
    dotnet --version
    ```
-3. Configure o banco de dados PostgreSQL e o RabbitMQ no `docker-compose.yml`:
+3. Configure o PostgreSQL e RabbitMQ no `docker-compose.yml`:
    ```sh
    docker-compose up -d
    ```
@@ -75,9 +101,7 @@ O desenvolvimento do MVP está sendo realizado pelos alunos do curso **4NETT**, 
 
 ---
 ## 🔥 Executando os Testes
-Para rodar os testes automatizados:
 ```sh
  dotnet test
 ```
-
 

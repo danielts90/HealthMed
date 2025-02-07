@@ -11,37 +11,7 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    services:
-      auth-db:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: healthmed
-          POSTGRES_PASSWORD: healthmed
-          POSTGRES_DB: healthMedUsersDb
-        ports:
-          - 5433:5432
-      doctor-db:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: healthmed
-          POSTGRES_PASSWORD: healthmed
-          POSTGRES_DB: healthMedDoctorsDb
-        ports:
-          - 5434:5432
-      patient-db:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: healthmed
-          POSTGRES_PASSWORD: healthmed
-          POSTGRES_DB: healthMedPatientsDb
-        ports:
-          - 5435:5432
-      rabbitmq:
-        image: rabbitmq:3-management
-        ports:
-          - 5672:5672
-          - 15672:15672
-
+   
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3

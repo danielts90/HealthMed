@@ -1,3 +1,7 @@
+![Badge Status](https://img.shields.io/badge/status-active-brightgreen)
+[![.NET Core Build, Test, and SonarCloud Analysis](https://github.com/gustavopalinka/HealthMed/blob/master/.github/workflows/sonar.yml/badge.svg)](https://github.com/gustavopalinka/HealthMed/blob/master/.github/workflows/sonar.yml)
+[![codecov](https://codecov.io/gh/gustavopalinka/HealthMed/branch/master/graph/badge.svg?token=G4NANCJ6XZ)](https://codecov.io/gh/gustavopalinka/HealthMed)
+
 # HACKATHON 4NETT - Health&Med
 
 ## 📌 Descrição

@@ -36,7 +36,7 @@ builder.Services.AddHttpClient("doctors_api", client =>
 builder.Services.AddTransient<IDoctorsService, DoctorsService>();
 
 
-
+var endpoint = builder.Configuration["Rabbit:Endpoint"];
 builder.Services.AddMassTransit(config =>
 {
     config.SetKebabCaseEndpointNameFormatter();
@@ -45,7 +45,7 @@ builder.Services.AddMassTransit(config =>
 
     config.UsingRabbitMq((ctx, cfg) =>
     {
-        cfg.Host("rabbitmq://localhost", h =>
+        cfg.Host(endpoint, h =>
         {
             h.Username("guest");
             h.Password("guest");

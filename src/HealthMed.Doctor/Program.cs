@@ -28,8 +28,8 @@ builder.Services.AddScoped<IDoctorAvailabilityService, DoctorAvailabilityService
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddDbContext<HealthMedDoctorsDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")),
+    ServiceLifetime.Scoped); 
 
 var endpoint = builder.Configuration["Rabbit:Endpoint"];
 
@@ -81,18 +81,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequirePatientRole", policy =>
         policy.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Patient"));
 });
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
-});
-
-
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

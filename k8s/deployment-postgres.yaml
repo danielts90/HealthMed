@@ -28,7 +28,7 @@ spec:
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
-            claimName: postgres-pvc
+            claimName: postgres-pvc-health
 
 ---
 apiVersion: v1

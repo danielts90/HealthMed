@@ -86,7 +86,7 @@ namespace HealthMed.Doctors.Services
 
         private async Task<Appointment> UpdateAppointmentStatus(int appointmentId, AppointmentStatus status)
         {
-            var appointment = await _appointmentRepository.GetByIdAsync(appointmentId)
+            var appointment = await _appointmentRepository.FirstOrDefaultAsync(o => o.PatientAppointmentId == appointmentId)
                               ?? throw new KeyNotFoundException("Consulta não encontrada.");
 
             ValidateDoctorPermission(appointment.DoctorId);

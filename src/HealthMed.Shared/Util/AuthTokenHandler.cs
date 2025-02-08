@@ -18,7 +18,8 @@ namespace HealthMed.Shared.Util
 
             if (httpContext != null && httpContext.Request.Headers.TryGetValue("Authorization", out var token))
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.ToString().Replace("Bearer ", ""));
+                token = token.ToString().Replace("Bearer ", "");
+                request.Headers.Authorization = new AuthenticationHeaderValue("bearer", token);
             }
 
             return await base.SendAsync(request, cancellationToken);

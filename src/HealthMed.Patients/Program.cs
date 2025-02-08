@@ -20,18 +20,22 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
-builder.Services.AddScoped<IDoctorsService, DoctorsService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IDoctorsService, DoctorsService>();
 
 var doctorApiUrl = builder.Configuration["Apis:Doctor"];
 
 builder.Services.AddTransient<AuthTokenHandler>();
 builder.Services.AddHttpClient("doctors_api", client =>
 {
-    client.BaseAddress = new Uri(doctorApiUrl); 
+    client.BaseAddress = new Uri(doctorApiUrl);
 }).AddHttpMessageHandler<AuthTokenHandler>();
+
+builder.Services.AddTransient<IDoctorsService, DoctorsService>();
+
+
 
 builder.Services.AddMassTransit(config =>
 {

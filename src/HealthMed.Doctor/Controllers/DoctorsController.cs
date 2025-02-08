@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMed.Doctors.Controllers
 {
-    [Route("api/[controller]")]
     [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class DoctorsController : ControllerBase
     {
         private readonly IDoctorService _doctorService;
@@ -64,12 +64,12 @@ namespace HealthMed.Doctors.Controllers
         }
 
         [HttpGet]
-        [Route("{speciality:DoctorMedicalSpeciality}")]
-        public async Task<IActionResult> GetDoctorBySpeciality(DoctorMedicalSpeciality speciality)
+        [Route("speciality/{speciality:int}")]
+        public async Task<IActionResult> GetDoctorBySpeciality(int speciality)
         {
             try
             {
-                var result = await _doctorService.GetDoctorBySpeciallity(speciality);
+                var result = await _doctorService.GetDoctorBySpeciallity((DoctorMedicalSpeciality)speciality);
                 return Ok(result);
             }
             catch (Exception ex)

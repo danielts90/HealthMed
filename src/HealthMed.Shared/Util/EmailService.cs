@@ -1,6 +1,4 @@
 ﻿using HealthMed.Shared.Dtos;
-using Mailjet.Client;
-using Mailjet.Client.TransactionalEmails;
 using System.Net;
 using System.Net.Mail;
 

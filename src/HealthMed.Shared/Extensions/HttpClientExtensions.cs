@@ -6,7 +6,7 @@
 
     public static class HttpClientExtensions
     {
-        public static async Task<T?> GetFromJsonAsync<T>(this HttpClient httpClient, string url)
+        public static async Task<T?> GetDataFromJsonAsync<T>(this HttpClient httpClient, string url)
         {
             var response = await httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();

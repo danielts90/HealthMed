@@ -5,9 +5,7 @@ using HealthMed.Doctors.Interfaces.Services;
 using HealthMed.Doctors.Repositories;
 using HealthMed.Doctors.Services;
 using HealthMed.Shared.Dtos;
-using HealthMed.Shared.MassTransit;
 using HealthMed.Shared.Util;
-using Mailjet.Client;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -80,6 +78,16 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("RequirePatientRole", policy =>
         policy.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Patient"));
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
 });
 
 

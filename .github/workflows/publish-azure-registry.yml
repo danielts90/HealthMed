@@ -1,0 +1,62 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    # Restaurar dependências para os três projetos
+    - name: Restore dependencies
+      run: |
+        dotnet restore src/HealthMed.Auth/HealthMed.Auth.csproj
+        dotnet restore src/HealthMed.Doctor/HealthMed.Doctors.csproj
+        dotnet restore src/HealthMed.Patients/HealthMed.Patients.csproj
+
+    # Construir os projetos
+    - name: Build
+      run: |
+        dotnet build src/HealthMed.Auth/HealthMed.Auth.csproj --no-restore
+        dotnet build src/HealthMed.Doctor/HealthMed.Doctors.csproj --no-restore
+        dotnet build src/HealthMed.Patients/HealthMed.Patients.csproj --no-restore
+
+    - name: Docker Login - Azure Container Registry
+      uses: Azure/docker-login@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        login-server: ${{ secrets.DOCKER_CONTAINER_REGISTRY }}
+
+    # Subir a API HealthMed.Auth
+    - name: Build e Push no Azure Container Registry - Auth
+      run: |
+        docker build . --file src/HealthMed.Auth/Dockerfile --tag ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.auth:latest
+        docker tag ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.auth:latest ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.auth:$(date +%s)
+        docker push ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.auth
+
+    # Subir a API HealthMed.Doctors
+    - name: Build e Push no Azure Container Registry - Doctors
+      run: |
+        docker build . --file src/HealthMed.Doctor/Dockerfile --tag ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.doctors:latest
+        docker tag ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.doctors:latest ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.doctors:$(date +%s)
+        docker push ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.doctors
+
+    # Subir a API HealthMed.Patients
+    - name: Build e Push no Azure Container Registry - Patients
+      run: |
+        docker build . --file src/HealthMed.Patients/Dockerfile --tag ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.patients:latest
+        docker tag ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.patients:latest ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.patients:$(date +%s)
+        docker push ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.patients

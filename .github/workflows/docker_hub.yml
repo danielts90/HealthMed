@@ -1,0 +1,62 @@
+name: Docker-Hub-Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    # Restaurar dependências para os três projetos
+    - name: Restore dependencies
+      run: |
+        dotnet restore src/HealthMed.Auth/HealthMed.Auth.csproj
+        dotnet restore src/HealthMed.Doctor/HealthMed.Doctors.csproj
+        dotnet restore src/HealthMed.Patients/HealthMed.Patients.csproj
+
+    # Construir os projetos
+    - name: Build
+      run: |
+        dotnet build src/HealthMed.Auth/HealthMed.Auth.csproj --no-restore
+        dotnet build src/HealthMed.Doctor/HealthMed.Doctors.csproj --no-restore
+        dotnet build src/HealthMed.Patients/HealthMed.Patients.csproj --no-restore
+
+    # Docker Login - Docker Hub (usando GitHub Token)
+    - name: Docker Login - Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_HUB_LOGIN }}  # Seu nome de usuário Docker Hub
+        password: ${{ secrets.SSO_TOKEN }}  # Seu GitHub Personal Access Token
+
+    # Subir a API HealthMed.Auth
+    - name: Build e Push no Docker Hub - Auth
+      run: |
+        docker build . --file src/HealthMed.Auth/Dockerfile --tag docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.auth:latest
+        docker tag docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.auth:latest docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.auth:$(date +%s)
+        docker push docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.auth
+
+    # Subir a API HealthMed.Doctors
+    - name: Build e Push no Docker Hub - Doctors
+      run: |
+        docker build . --file src/HealthMed.Doctor/Dockerfile --tag docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.doctors:latest
+        docker tag docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.doctors:latest docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.doctors:$(date +%s)
+        docker push docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.doctors
+
+    # Subir a API HealthMed.Patients
+    - name: Build e Push no Docker Hub - Patients
+      run: |
+        docker build . --file src/HealthMed.Patients/Dockerfile --tag docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.patients:latest
+        docker tag docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.patients:latest docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.patients:$(date +%s)
+        docker push docker.io/${{ secrets.DOCKER_HUB_LOGIN }}/healthmed.patients

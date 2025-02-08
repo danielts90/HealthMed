@@ -23,14 +23,14 @@ jobs:
     - name: Restore dependencies
       run: |
         dotnet restore src/HealthMed.Auth/HealthMed.Auth.csproj
-        dotnet restore src/HealthMed.Doctors/HealthMed.Doctors.csproj
+        dotnet restore src/HealthMed.Doctor/HealthMed.Doctors.csproj
         dotnet restore src/HealthMed.Patients/HealthMed.Patients.csproj
 
     # Construir os projetos
     - name: Build
       run: |
         dotnet build src/HealthMed.Auth/HealthMed.Auth.csproj --no-restore
-        dotnet build src/HealthMed.Doctors/HealthMed.Doctors.csproj --no-restore
+        dotnet build src/HealthMed.Doctor/HealthMed.Doctors.csproj --no-restore
         dotnet build src/HealthMed.Patients/HealthMed.Patients.csproj --no-restore
 
     # Testar os projetos
@@ -55,7 +55,7 @@ jobs:
     # Subir a API HealthMed.Doctors
     - name: Build e Push no Azure Container Registry - Doctors
       run: |
-        docker build src/HealthMed.Doctors --file src/HealthMed.Doctors/Dockerfile --tag ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.doctors:latest
+        docker build src/HealthMed.Doctors --file src/HealthMed.Doctor/Dockerfile --tag ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.doctors:latest
         docker tag ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.doctors:latest ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.doctors:$(date +%s)
         docker push ${{ secrets.DOCKER_CONTAINER_REGISTRY }}/healthmed.doctors
 

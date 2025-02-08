@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: patients-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: patients-api
+  template:
+    metadata:
+      labels:
+        app: patients-api
+    spec:
+      containers:
+        - name: patients-api
+          image: danielts90/healthmed.patients:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: patients-api-config
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: patients-api
+  labels:
+    app: patients-api
+spec:
+  selector:
+    app: patients-api
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30006
+  type: NodePort

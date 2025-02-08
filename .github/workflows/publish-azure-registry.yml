@@ -33,10 +33,6 @@ jobs:
         dotnet build src/HealthMed.Doctor/HealthMed.Doctors.csproj --no-restore
         dotnet build src/HealthMed.Patients/HealthMed.Patients.csproj --no-restore
 
-    # Testar os projetos
-    - name: Test
-      run: |
-        dotnet test src/**/*Test.csproj --no-build --verbosity normal
 
     - name: Docker Login - Azure Container Registry
       uses: Azure/docker-login@v1

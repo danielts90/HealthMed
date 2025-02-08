@@ -11,9 +11,10 @@ namespace HealthMed.Doctors.Entities
         public TimeSpan FinishInterval { get; set; }
         public TimeSpan ExitTime { get; set; }
         public int AppointmentDuration { get; set; }
+        public double AppointmentPrice { get; set; }
 
         // Relacionamento com Doctor
-        public Doctor Doctor { get; set; }
+        public Doctor? Doctor { get; set; }
     }
 
 }

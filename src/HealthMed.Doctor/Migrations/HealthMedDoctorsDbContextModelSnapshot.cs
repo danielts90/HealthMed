@@ -22,6 +22,50 @@ namespace HealthMed.Doctors.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("HealthMed.Doctors.Entities.Appointment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CancelReason")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<DateTime>("DateAppointment")
+                        .HasColumnType("timestamp");
+
+                    b.Property<int>("DoctorId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PatientAppointmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PatientId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PatientName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorId");
+
+                    b.ToTable("Appointments", (string)null);
+                });
+
             modelBuilder.Entity("HealthMed.Doctors.Entities.Doctor", b =>
                 {
                     b.Property<int>("Id")
@@ -51,6 +95,9 @@ namespace HealthMed.Doctors.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Speciality")
+                        .HasColumnType("integer");
+
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
@@ -70,8 +117,13 @@ namespace HealthMed.Doctors.Migrations
                     b.Property<int>("AppointmentDuration")
                         .HasColumnType("integer");
 
+                    b.Property<double>("AppointmentPrice")
+                        .HasColumnType("double precision");
+
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int>("DoctorId")
                         .HasColumnType("integer");
@@ -96,6 +148,17 @@ namespace HealthMed.Doctors.Migrations
                     b.HasIndex("DoctorId");
 
                     b.ToTable("DoctorsWorkTime", (string)null);
+                });
+
+            modelBuilder.Entity("HealthMed.Doctors.Entities.Appointment", b =>
+                {
+                    b.HasOne("HealthMed.Doctors.Entities.Doctor", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
                 });
 
             modelBuilder.Entity("HealthMed.Doctors.Entities.DoctorsWorkTime", b =>

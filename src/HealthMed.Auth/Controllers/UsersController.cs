@@ -22,7 +22,7 @@ namespace HealthMed.Auth.Controllers
         {
             try
             {
-                var token = await userService.Login(login.Email, login.Password);
+                var token = await userService.Login(login.UserName, login.Password);
                 return Ok(token);
             }
             catch (Exception ex)

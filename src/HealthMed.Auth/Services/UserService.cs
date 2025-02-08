@@ -35,7 +35,7 @@ namespace HealthMed.Auth.Services
 
         public async Task<string> Login(string username, string password)
         {
-            var existentUser = await _usersRepository.FirstOrDefaultAsync(o => o.Email == username);
+            var existentUser = await _usersRepository.FirstOrDefaultAsync(o => o.Email == username || o.SecondaryLogin == username);
             if (existentUser is User)
             {
                 var result = _passwordHasher.VerifyHashedPassword(existentUser, existentUser.Password, password);

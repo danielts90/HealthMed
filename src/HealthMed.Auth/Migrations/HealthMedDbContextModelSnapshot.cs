@@ -47,6 +47,10 @@ namespace HealthMed.Auth.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("SecondaryLogin")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<short>("UserType")
                         .HasColumnType("smallint");
 

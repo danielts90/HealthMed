@@ -1,3 +1,4 @@
+using HealthMed.Doctors.Consumers;
 using HealthMed.Doctors.Context;
 using HealthMed.Doctors.Interfaces.Repositories;
 using HealthMed.Doctors.Interfaces.Services;
@@ -5,6 +6,7 @@ using HealthMed.Doctors.Repositories;
 using HealthMed.Doctors.Services;
 using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Util;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -22,11 +24,35 @@ builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IDoctorsWorkTimeService, DoctorsWorkTimeService>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
-
+builder.Services.AddScoped<IDoctorAvailabilityService, DoctorAvailabilityService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddDbContext<HealthMedDoctorsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+builder.Services.AddMassTransit(config =>
+{
+    config.SetKebabCaseEndpointNameFormatter();
+
+    config.AddConsumer<CreateAppointmentConsumer>();
+    config.AddConsumer<CanceledAppointmentConsumer>();
+
+    config.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host("rabbitmq://localhost", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        cfg.ReceiveEndpoint("patient-appointment-queue", e =>
+        {
+            e.ConfigureConsumer<CreateAppointmentConsumer>(ctx);
+            e.ConfigureConsumer<CanceledAppointmentConsumer>(ctx);
+        });
+    });
+});
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
@@ -45,7 +71,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireDoctorRole", policy =>
@@ -53,6 +78,16 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("RequirePatientRole", policy =>
         policy.RequireClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", "Patient"));
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
 });
 
 
@@ -104,7 +139,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization(); 
 
-app.UseAuthorization();
 
 app.MapControllers();
 

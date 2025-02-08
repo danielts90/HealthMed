@@ -1,6 +1,7 @@
 ﻿using HealthMed.Doctors.Entities;
 using HealthMed.Doctors.Interfaces.Repositories;
 using HealthMed.Doctors.Interfaces.Services;
+using HealthMed.Shared.Enum;
 using HealthMed.Shared.Exceptions;
 using HealthMed.Shared.Util;
 
@@ -46,6 +47,11 @@ namespace HealthMed.Doctors.Services
         {
             var existentDoctor = await _doctorRepository.FirstOrDefaultAsync(o => o.UserId == doctor.UserId);
             if (existentDoctor is Doctor) throw new RegisterAlreadyExistsException();
+        }
+
+        public async Task<IEnumerable<Doctor?>> GetDoctorBySpeciallity(DoctorMedicalSpeciality speciality)
+        {
+            return await _doctorRepository.FindByAsync(o => o.Speciality == speciality);
         }
     }
 }

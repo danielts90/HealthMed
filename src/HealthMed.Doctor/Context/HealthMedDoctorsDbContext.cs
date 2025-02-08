@@ -10,7 +10,7 @@ namespace HealthMed.Doctors.Context
 
         DbSet<Doctor> Doctors { get; set; }
         DbSet<DoctorsWorkTime> DoctorsWorkTimes { get; set; }
-
+        DbSet<Appointment> Appointments { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());

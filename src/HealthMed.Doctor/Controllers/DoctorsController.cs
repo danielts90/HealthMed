@@ -1,16 +1,18 @@
 ﻿using HealthMed.Doctors.Entities;
 using HealthMed.Doctors.Interfaces.Services;
+using HealthMed.Shared.Enum;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMed.Doctors.Controllers
 {
-    [Route("api/[controller]")]
     [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class DoctorsController : ControllerBase
     {
         private readonly IDoctorService _doctorService;
+        
 
         public DoctorsController(IDoctorService doctorService)
         {
@@ -61,6 +63,19 @@ namespace HealthMed.Doctors.Controllers
             }
         }
 
-
+        [HttpGet]
+        [Route("speciality/{speciality:int}")]
+        public async Task<IActionResult> GetDoctorBySpeciality(int speciality)
+        {
+            try
+            {
+                var result = await _doctorService.GetDoctorBySpeciallity((DoctorMedicalSpeciality)speciality);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -32,15 +32,31 @@ namespace HealthMed.Doctors.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("create-appointment")]
-        [Authorize(Policy = "RequirePatientRole")]
-        public async Task<IActionResult> CreateAppointments([FromBody] Appointment appointment)
+        [HttpPut]
+        [Route("doctor-appointments/accept/{id:int}")]
+        [Authorize(Policy = "RequireDoctorRole")]
+        public async Task<IActionResult> ApproveAppointment(int id)
         {
             try
             {
-                var appointments = await _appointmentService.CreateAppointment(appointment);
-                return Ok(appointments);
+                var appointment = await _appointmentService.AcceptAppointment(id);
+                return Ok(appointment);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("doctor-appointments/reject/{id:int}")]
+        [Authorize(Policy = "RequireDoctorRole")]
+        public async Task<IActionResult> RejectAppointment(int id)
+        {
+            try
+            {
+                var appointment = await _appointmentService.RejectAppointment(id);
+                return Ok(appointment);
             }
             catch (Exception ex)
             {

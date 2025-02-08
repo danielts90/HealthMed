@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: doctor-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: doctor-api
+  template:
+    metadata:
+      labels:
+        app: doctor-api
+    spec:
+      containers:
+        - name: doctor-api
+          image: danielts90/healthmed.doctors:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: doctors-api-config
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: doctor-api
+  labels:
+    app: doctor-api
+spec:
+  selector:
+    app: doctor-api
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30006
+  type: NodePort

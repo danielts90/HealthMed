@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ddd-api-config
+  name: patients-api-config
 data:
   ASPNETCORE_ENVIRONMENT: "k8s"
   ConnectionStrings__DefaultConnection: "Host=postgres-service;Port=5432;Username=healthmed;Password=healthmed;Database=healthMedPatientsDb;"

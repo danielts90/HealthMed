@@ -19,7 +19,7 @@ spec:
             - containerPort: 8080
           envFrom:
             - configMapRef:
-                name: doctor-api-config
+                name: doctors-api-config
 
 
 ---

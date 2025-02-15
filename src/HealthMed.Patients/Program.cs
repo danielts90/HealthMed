@@ -31,6 +31,7 @@ builder.Services.AddTransient<AuthTokenHandler>();
 builder.Services.AddHttpClient("doctors_api", client =>
 {
     client.BaseAddress = new Uri(doctorApiUrl);
+
 }).AddHttpMessageHandler<AuthTokenHandler>();
 
 builder.Services.AddTransient<IDoctorsService, DoctorsService>();

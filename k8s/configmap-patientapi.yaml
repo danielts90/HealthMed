@@ -5,6 +5,7 @@ metadata:
 data:
   ASPNETCORE_ENVIRONMENT: "k8s"
   ConnectionStrings__DefaultConnection: "Host=postgres-service;Port=5432;Username=healthmed;Password=healthmed;Database=healthMedPatientsDb;"
+  Rabbit__Endpoint: "rabbitmq://rabbitmq"
   Logging__LogLevel__Default: "Information"
   Logging__LogLevel__Microsoft_AspNetCore: "Warning"
   AllowedHosts: "*"

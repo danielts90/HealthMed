@@ -9,7 +9,7 @@ namespace HealthMed.Shared.Util
 
         public AuthTokenHandler(IHttpContextAccessor httpContextAccessor)
         {
-            _httpContextAccessor = httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -18,11 +18,11 @@ namespace HealthMed.Shared.Util
 
             if (httpContext != null && httpContext.Request.Headers.TryGetValue("Authorization", out var token))
             {
-                token = token.ToString().Replace("Bearer ", "");
-                request.Headers.Authorization = new AuthenticationHeaderValue("bearer", token);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token.ToString().Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase));
             }
 
             return await base.SendAsync(request, cancellationToken);
         }
     }
+
 }

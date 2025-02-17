@@ -1,9 +1,11 @@
 ﻿using HealthMed.Doctors.Entities;
 using HealthMed.Doctors.Interfaces.Repositories;
 using HealthMed.Doctors.Interfaces.Services;
+using HealthMed.Doctors.Interfaces.UnitOfWork;
 using HealthMed.Doctors.Services;
 using HealthMed.Shared.Exceptions;
 using HealthMed.Shared.Util;
+using Microsoft.EntityFrameworkCore.Query;
 using Moq;
 using Moq.AutoMock;
 using System.Linq.Expressions;
@@ -18,6 +20,8 @@ namespace HealthMedDoctorsTest
         private readonly Mock<IUserContext> _userContext;
         private readonly Mock<IDoctorsWorkTimeRepository> _repository;
         private readonly Mock<IDoctorService> _doctorService;
+        private readonly Mock<IUnitOfWork> _uow;
+        
 
         public DoctorsWorkTimeServiceTest()
         {
@@ -26,6 +30,7 @@ namespace HealthMedDoctorsTest
             _repository = _mocker.GetMock<IDoctorsWorkTimeRepository>();
             _userContext = _mocker.GetMock<IUserContext>();
             _doctorService = _mocker.GetMock<IDoctorService>();
+            _uow = _mocker.GetMock<IUnitOfWork>();
         }
 
         [Fact]
@@ -81,14 +86,14 @@ namespace HealthMedDoctorsTest
             CreateUserContextMock();
 
             _doctorService.Setup(ds => ds.GetDoctorById(doctor.Id)).ReturnsAsync(doctor);
-            _repository.Setup(repo => repo.UpdateAsync(doctorWorkTime)).ReturnsAsync(doctorWorkTime);
+            _uow.Setup(repo => repo.DoctorsWorkTimeRepository.Update(doctorWorkTime)).Returns(doctorWorkTime);
 
 
             //act 
             await _service.UpdateWorkTime(doctor.Id, doctorWorkTime);
 
             //Assert
-            _repository.Verify(repo => repo.UpdateAsync(doctorWorkTime), Times.Once());
+            _uow.Verify(repo => repo.DoctorsWorkTimeRepository.Update(doctorWorkTime), Times.Once());
         }
 
         [Fact]
@@ -98,7 +103,7 @@ namespace HealthMedDoctorsTest
             var doctor = new Doctor { Id = 1, UserId = 1 };
             CreateUserContextMock();
             _doctorService.Setup(ds => ds.GetDoctorById(doctor.Id)).ReturnsAsync(doctor);
-            _repository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync(new DoctorsWorkTime());
+            _uow.Setup(repo => repo.DoctorsWorkTimeRepository.FirstAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync(new DoctorsWorkTime());
 
             //act 
             var exception = await Assert.ThrowsAsync<RegisterAlreadyExistsException>(() => _service.AddWorkTime(doctor.Id, new DoctorsWorkTime() { WeekDay = 0}));;
@@ -116,15 +121,15 @@ namespace HealthMedDoctorsTest
             CreateUserContextMock();
 
             _doctorService.Setup(ds => ds.GetDoctorById(doctor.Id)).ReturnsAsync(doctor);
-            _repository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync((DoctorsWorkTime)null);
-            _repository.Setup(repo => repo.AddAsync(doctorWorkTime)).ReturnsAsync(doctorWorkTime);
+            _uow.Setup(repo => repo.DoctorsWorkTimeRepository.FirstAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync((DoctorsWorkTime)null);
+            _uow.Setup(repo => repo.DoctorsWorkTimeRepository.Add(doctorWorkTime)).Returns(doctorWorkTime);
 
 
             //act 
             await _service.AddWorkTime(doctor.Id, doctorWorkTime);
 
             //Assert
-            _repository.Verify(repo => repo.AddAsync(doctorWorkTime), Times.Once());
+            _uow.Verify(repo => repo.DoctorsWorkTimeRepository.Add(doctorWorkTime), Times.Once());
         }
 
         [Fact]
@@ -134,7 +139,7 @@ namespace HealthMedDoctorsTest
             var dateAppointment = new DateTime(2025, 01, 01);
             var doctorId = 1;
 
-            _repository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync((DoctorsWorkTime)null);
+            _uow.Setup(repo => repo.DoctorsWorkTimeRepository.FirstAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync((DoctorsWorkTime)null);
 
             //act
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _service.IsValidWorkTime(dateAppointment, doctorId));
@@ -152,7 +157,7 @@ namespace HealthMedDoctorsTest
             var doctorWorkTime = GetValidDoctorWorkTime();
             var dateAppointment = new DateTime(2025, 01, 01, 5, 0, 0);
 
-            _repository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync(doctorWorkTime);
+            _uow.Setup(repo => repo.DoctorsWorkTimeRepository.FirstAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync(doctorWorkTime);
 
             //act
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _service.IsValidWorkTime(dateAppointment, doctor.Id));
@@ -170,7 +175,7 @@ namespace HealthMedDoctorsTest
             var doctorWorkTime = GetValidDoctorWorkTime();
             var dateAppointment = new DateTime(2025, 01, 01, 12, 30, 0);
 
-            _repository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync(doctorWorkTime);
+            _uow.Setup(repo => repo.DoctorsWorkTimeRepository.FirstAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync(doctorWorkTime);
 
             //act
             var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => _service.IsValidWorkTime(dateAppointment, doctor.Id));
@@ -188,7 +193,7 @@ namespace HealthMedDoctorsTest
             var doctorWorkTime = GetValidDoctorWorkTime();
             var dateAppointment = new DateTime(2025, 01, 01, 11, 30, 0);
 
-            _repository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync(doctorWorkTime);
+            _uow.Setup(repo => repo.DoctorsWorkTimeRepository.FirstAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>())).ReturnsAsync(doctorWorkTime);
 
             //act
             await _service.IsValidWorkTime(dateAppointment, doctor.Id);
@@ -204,14 +209,22 @@ namespace HealthMedDoctorsTest
                 GetValidDoctorWorkTime() 
             };
 
-            _repository.Setup(repo => repo.FindByAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>()))
-                             .ReturnsAsync(workTimes);
+            _uow.Setup(repo => repo.DoctorsWorkTimeRepository.GetDataAsync(
+                                It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>(),
+                                It.IsAny<Func<IQueryable<DoctorsWorkTime>, IIncludableQueryable<DoctorsWorkTime, object>>>(),
+                                It.IsAny<int?>(),
+                                It.IsAny<int?>()))
+                     .ReturnsAsync(workTimes);
 
             // Act
             var result = await _service.GetDoctorWorkTime(It.IsAny<int>());
 
             // Assert
-            _repository.Verify(repo => repo.FindByAsync(It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>()), Times.Once);
+            _uow.Verify(repo => repo.DoctorsWorkTimeRepository.GetDataAsync(
+                                It.IsAny<Expression<Func<DoctorsWorkTime, bool>>>(),
+                                It.IsAny<Func<IQueryable<DoctorsWorkTime>, IIncludableQueryable<DoctorsWorkTime, object>>>(),
+                                It.IsAny<int?>(),
+                                It.IsAny<int?>()), Times.Once);
 
             Assert.NotNull(result);
             Assert.Equal(2, result.Count());

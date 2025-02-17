@@ -3,7 +3,7 @@ using HealthMed.Shared.Repositories.Interfaces;
 
 namespace HealthMed.Doctors.Interfaces.Repositories
 {
-    public interface IDoctorsWorkTimeRepository : IGenericRepository<DoctorsWorkTime>
+    public interface IDoctorsWorkTimeRepository : IGenericRepositoryDIO<DoctorsWorkTime>
     {
     }
 }

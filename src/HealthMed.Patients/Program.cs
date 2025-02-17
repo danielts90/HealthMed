@@ -2,8 +2,10 @@ using HealthMed.Patients.Consumers;
 using HealthMed.Patients.Context;
 using HealthMed.Patients.Interfaces.Repositories;
 using HealthMed.Patients.Interfaces.Services;
+using HealthMed.Patients.Interfaces.UnitOfWork;
 using HealthMed.Patients.Repositories;
 using HealthMed.Patients.Services;
+using HealthMed.Patients.UnitOfWorks;
 using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Util;
 using MassTransit;
@@ -17,6 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
@@ -60,7 +63,7 @@ builder.Services.AddMassTransit(config =>
 });
 
 builder.Services.AddDbContext<HealthMedPatientsDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Transient
 );
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();

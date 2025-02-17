@@ -3,6 +3,6 @@ using HealthMed.Shared.Repositories.Interfaces;
 
 namespace HealthMed.Patients.Interfaces.Repositories
 {
-    public interface IPatientRepository : IGenericRepository<Patient>
+    public interface IPatientRepository : IGenericRepositoryDIO<Patient>
     { }
 }

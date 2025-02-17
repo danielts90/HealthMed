@@ -1,6 +1,7 @@
 ﻿using HealthMed.Patients.Entities;
 using HealthMed.Patients.Interfaces.Repositories;
 using HealthMed.Patients.Interfaces.Services;
+using HealthMed.Patients.Interfaces.UnitOfWork;
 using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Enum;
 using HealthMed.Shared.Exceptions;
@@ -16,28 +17,31 @@ namespace HealthMed.Patients.Services
         private readonly IPatientService _patientService;
         private readonly ISendEndpointProvider _sendEndpointProvider;
         private readonly IEmailService _emailService;
+        private readonly IUnitOfWork _uow;
 
 
 
-        public AppointmentService(IAppointmentRepository appointmentRepository,
-                                  IPatientService patientService,
+        public AppointmentService(IPatientService patientService,
                                   ISendEndpointProvider sendEndpointProvider,
-                                  IEmailService emailService)
+                                  IEmailService emailService,
+                                  IUnitOfWork uow)
 
         {
-            _appointmentRepository = appointmentRepository;
             _patientService = patientService;
             _sendEndpointProvider = sendEndpointProvider;
             _emailService = emailService;
+            _uow = uow;
         }
 
         public async Task<Appointment> AppointmentUpdatedDoctor(int apppointmentId, AppointmentStatus status)
         {
-            var appointment = await _appointmentRepository.GetByIdAsync(apppointmentId);
+            var appointment = await _uow.AppointmentRepository.GetByIdAsync(apppointmentId);
             var patient = await _patientService.GetPatientByPatientId(appointment.PatientId);
             appointment.Status = status;
 
-            await _appointmentRepository.UpdateAsync(appointment);
+            _uow.AppointmentRepository.Update(appointment);
+
+            _uow.Commit();
 
             var statusMessage = status == AppointmentStatus.Accepted ? "<b>Confirmada<b/>" : "<b>Rejeitada<b/>";
 
@@ -57,7 +61,7 @@ namespace HealthMed.Patients.Services
 
         public async Task<Appointment> CancelAppointment(int appointmentId, string cancelReason)
         {
-            var appointment = await _appointmentRepository.GetByIdAsync(appointmentId);
+            var appointment = await _uow.AppointmentRepository.GetByIdAsync(appointmentId);
             if (appointment == null) throw new KeyNotFoundException("Consulta não encontrada.");
 
             var patient = await GetPatientAsync();
@@ -68,7 +72,9 @@ namespace HealthMed.Patients.Services
 
             var canceledAppointment = new CanceledAppointmentMessage(appointmentId, cancelReason);
 
-            await _appointmentRepository.UpdateAsync(appointment);
+            _uow.AppointmentRepository.Update(appointment);
+
+            _uow.Commit();
 
             var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("queue:patient-appointment-queue"));
             await endpoint.Send(canceledAppointment);
@@ -81,7 +87,9 @@ namespace HealthMed.Patients.Services
             var patient = await GetPatientAsync();
             if(patient.Id != appointment.PatientId) throw new InvalidUserException("Paciente não pode criar consulta para outro.");
 
-            await _appointmentRepository.AddAsync(appointment);
+            _uow.AppointmentRepository.Add(appointment);
+
+            _uow.Commit();
 
             var createdAppointment = new AppointmentMessage 
             {
@@ -101,7 +109,7 @@ namespace HealthMed.Patients.Services
         public async Task<IEnumerable<Appointment>> GetAppointments()
         {
             var patient = await GetPatientAsync();
-            var appointments = await _appointmentRepository.FindByAsync(o => o.PatientId == patient.Id
+            var appointments = await _uow.AppointmentRepository.GetDataAsync(o => o.PatientId == patient.Id
                                                                && o.Status != AppointmentStatus.Rejected
                                                                && o.DateAppointment > DateTime.Now);
 

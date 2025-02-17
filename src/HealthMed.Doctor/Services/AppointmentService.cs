@@ -1,6 +1,6 @@
 ﻿using HealthMed.Doctors.Entities;
-using HealthMed.Doctors.Interfaces.Repositories;
 using HealthMed.Doctors.Interfaces.Services;
+using HealthMed.Doctors.Interfaces.UnitOfWork;
 using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Enum;
 using HealthMed.Shared.Templates;
@@ -12,26 +12,26 @@ namespace HealthMed.Doctors.Services
     public class AppointmentService : IAppointmentService
     {
         private readonly IUserContext _userContext;
-        private readonly IAppointmentRepository _appointmentRepository;
         private readonly IDoctorsWorkTimeService _doctorsWorkTimeService;
         private readonly IDoctorService _doctorService;
         private readonly ISendEndpointProvider _sendEndpointProvider;
         private readonly IEmailService _emailService;
+        private readonly IUnitOfWork _uow;
 
 
         public AppointmentService(IUserContext userContext,
-                                  IAppointmentRepository appointmentRepository,
                                   IDoctorsWorkTimeService doctorsWorkTimeService,
                                   IDoctorService doctorService,
                                   ISendEndpointProvider sendEndpointProvider,
-                                  IEmailService emailService)
+                                  IEmailService emailService,
+                                  IUnitOfWork unitOfWork)
         {
             _userContext = userContext;
-            _appointmentRepository = appointmentRepository;
             _doctorsWorkTimeService = doctorsWorkTimeService;
             _doctorService = doctorService;
             _sendEndpointProvider = sendEndpointProvider;
             _emailService = emailService;
+            _uow = unitOfWork;
         }
 
         public async Task<Appointment> CreateAppointment(Appointment appointment)
@@ -40,7 +40,9 @@ namespace HealthMed.Doctors.Services
             await EnsureAppointmentDoesNotExistAsync(appointment);
             await _doctorsWorkTimeService.IsValidWorkTime(appointment.DateAppointment, appointment.DoctorId);
 
-            await _appointmentRepository.AddAsync(appointment);
+            _uow.AppointmentRepository.Add(appointment);
+
+            _uow.Commit();
 
             await _emailService.SendMail(new EmailDto
             {
@@ -57,20 +59,20 @@ namespace HealthMed.Doctors.Services
 
         private async Task EnsureAppointmentDoesNotExistAsync(Appointment appointment)
         {
-            var existentAppointment = await _appointmentRepository.FirstOrDefaultAsync(o => o.DateAppointment == appointment.DateAppointment && o.DoctorId == appointment.DoctorId);
+            var existentAppointment = await _uow.AppointmentRepository.FirstAsync(o => o.DateAppointment == appointment.DateAppointment && o.DoctorId == appointment.DoctorId);
             if (existentAppointment != null)
             {
-                await NotifyPatient(appointment);
+                await NotifyPatient(appointment, AppointmentStatus.Rejected);
                 throw new InvalidOperationException("Já existe uma consulta marcada no dia e horário selecionado.");
             }
         }
 
-        private async Task NotifyPatient(Appointment appointment)
+        private async Task NotifyPatient(Appointment appointment, AppointmentStatus status)
         {
             var message = new AppointmentDoctorUpdateMessage
                             (
                                 appointment.PatientAppointmentId,
-                                AppointmentStatus.Rejected
+                                status
                             );
             var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("queue:doctor-appointment-queue"));
             await endpoint.Send(message);
@@ -79,22 +81,24 @@ namespace HealthMed.Doctors.Services
         public async Task<IEnumerable<Appointment>> GetAppointmentsByDoctor(DateTime dateAppointments, int? doctorId = null)
         {
             int? IdDoctor = doctorId ?? _userContext.GetUserId();
-            var appointments = await _appointmentRepository.FindByAsync(o =>
+            var appointments = await _uow.AppointmentRepository.GetDataAsync(o =>
                 o.DateAppointment.Date == dateAppointments.Date && o.DoctorId == IdDoctor.Value);
             return appointments;
         }
 
         private async Task<Appointment> UpdateAppointmentStatus(int appointmentId, AppointmentStatus status)
         {
-            var appointment = await _appointmentRepository.FirstOrDefaultAsync(o => o.PatientAppointmentId == appointmentId)
+            var appointment = await _uow.AppointmentRepository.FirstAsync(o => o.PatientAppointmentId == appointmentId)
                               ?? throw new KeyNotFoundException("Consulta não encontrada.");
 
-            ValidateDoctorPermission(appointment.DoctorId);
+            await ValidateDoctorPermission(appointment.DoctorId);
 
             appointment.Status = status;
-            var updatedAppointment = await _appointmentRepository.UpdateAsync(appointment);
+            var updatedAppointment = _uow.AppointmentRepository.Update(appointment);
+            
+            _uow.Commit();
 
-            await NotifyPatient(appointment);
+            await NotifyPatient(appointment, status);
 
             return updatedAppointment;
         }
@@ -109,7 +113,7 @@ namespace HealthMed.Doctors.Services
             return await UpdateAppointmentStatus(appointmentId, AppointmentStatus.Rejected);
         }
 
-        private async void ValidateDoctorPermission(int doctorId)
+        private async Task ValidateDoctorPermission(int doctorId)
         {
             var doctor = await _doctorService.GetDoctorById(doctorId)
                          ?? throw new KeyNotFoundException("Médico não encontrado.");
@@ -120,13 +124,15 @@ namespace HealthMed.Doctors.Services
 
         public async Task<Appointment> AppointmentRejectedByPatient(int patientAppointmentId, string cancelReason)
         {
-            var appointment = await _appointmentRepository.FirstOrDefaultAsync(o => o.PatientAppointmentId == patientAppointmentId);
+            var appointment = await _uow.AppointmentRepository.FirstAsync(o => o.PatientAppointmentId == patientAppointmentId);
             var doctor = await _doctorService.GetDoctorById(appointment.DoctorId);
 
             appointment.Status = AppointmentStatus.Rejected;
             appointment.CancelReason = cancelReason;
 
-            await _appointmentRepository.UpdateAsync(appointment);
+            _uow.AppointmentRepository.Update(appointment);
+
+            _uow.Commit();
 
             await _emailService.SendMail(new EmailDto
             {

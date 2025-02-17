@@ -1,8 +1,11 @@
 ﻿using HealthMed.Doctors.Entities;
 using HealthMed.Doctors.Interfaces.Repositories;
+using HealthMed.Doctors.Interfaces.UnitOfWork;
 using HealthMed.Doctors.Services;
+using HealthMed.Doctors.UnitOfWorks;
 using HealthMed.Shared.Exceptions;
 using HealthMed.Shared.Util;
+using Microsoft.EntityFrameworkCore.Query;
 using Moq;
 using Moq.AutoMock;
 using System.Linq.Expressions;
@@ -16,6 +19,7 @@ namespace HealthMedDoctorsTest
         private readonly DoctorService _doctorsService;
         private readonly Mock<IDoctorRepository> _doctorsRepository;
         private readonly Mock<IUserContext> _userContext;
+        private readonly Mock<IUnitOfWork> _uow;
 
         public DoctorServiceTests()
         {
@@ -23,6 +27,7 @@ namespace HealthMedDoctorsTest
             _doctorsService = _mocker.CreateInstance<DoctorService>();
             _doctorsRepository = _mocker.GetMock<IDoctorRepository>();
             _userContext = _mocker.GetMock<IUserContext>();
+            _uow = _mocker.GetMock<IUnitOfWork>();
         }
 
         [Fact]
@@ -32,7 +37,7 @@ namespace HealthMedDoctorsTest
             var doctor = new Doctor();
             CreateUserContextMock();
 
-            _doctorsRepository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Doctor, bool>>>()))
+            _uow.Setup(repo => repo.DoctorRepository.FirstAsync(It.IsAny<Expression<Func<Doctor, bool>>>()))
                 .ReturnsAsync(doctor);
 
             //Act
@@ -46,17 +51,17 @@ namespace HealthMedDoctorsTest
             var doctor = new Doctor();
             CreateUserContextMock();
 
-            _doctorsRepository.Setup(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Doctor, bool>>>()))
+            _uow.Setup(repo => repo.DoctorRepository.FirstAsync(It.IsAny<Expression<Func<Doctor, bool>>>()))
                 .ReturnsAsync((Doctor)null);
 
-            _doctorsRepository.Setup(repo => repo.AddAsync(It.IsAny<Doctor>()))
-                .ReturnsAsync(doctor);
+            _uow.Setup(repo => repo.DoctorRepository.Add(It.IsAny<Doctor>()))
+                .Returns(doctor);
 
             //Act
             var result = await _doctorsService.CreateDoctor(doctor);
 
             //Assert
-            _doctorsRepository.Verify(repo => repo.AddAsync(It.IsAny<Doctor>()), Times.Once);
+            _uow.Verify(repo => repo.DoctorRepository.Add(It.IsAny<Doctor>()), Times.Once);
         }
 
         [Fact]
@@ -69,14 +74,24 @@ namespace HealthMedDoctorsTest
                 new Doctor { UserId = 2, Name = "Dr. Strange" }
             };
 
-            _doctorsRepository.Setup(repo => repo.GetAllAsync())
-                             .ReturnsAsync(doctorList);
+            
+            _uow.Setup(repo => repo.DoctorRepository.GetDataAsync(
+                It.IsAny<Expression<Func<Doctor, bool>>>(),
+                It.IsAny<Func<IQueryable<Doctor>, IIncludableQueryable<Doctor, object>>>(),
+                It.IsAny<int?>(),
+                It.IsAny<int?>()
+            )).ReturnsAsync(doctorList);
 
             // Act
             var result = await _doctorsService.GetAllDoctors();
 
             // Assert
-            _doctorsRepository.Verify(repo => repo.GetAllAsync(), Times.Once);
+            _uow.Verify(repo => repo.DoctorRepository.GetDataAsync(
+                It.IsAny<Expression<Func<Doctor, bool>>>(),
+                It.IsAny<Func<IQueryable<Doctor>, IIncludableQueryable<Doctor, object>>>(),
+                It.IsAny<int?>(),
+                It.IsAny<int?>()
+            ), Times.Once);
 
             Assert.NotNull(result);
             Assert.Equal(2, result.Count());
@@ -84,20 +99,21 @@ namespace HealthMedDoctorsTest
             Assert.Contains(result, doctor => doctor.Name == "Dr. Strange");
         }
 
+
         [Fact]
         public async Task GetDoctorById_ShouldReturnDoctor()
         {
             // Arrange
             var doctor = new Doctor { UserId = 1, Name = "Dr. House" };
 
-            _doctorsRepository.Setup(repo => repo.GetByIdAsync(1))
+            _uow.Setup(repo => repo.DoctorRepository.GetByIdAsync(1))
                              .ReturnsAsync(doctor);
 
             // Act
             var result = await _doctorsService.GetDoctorById(1);
 
             // Assert
-            _doctorsRepository.Verify(repo => repo.GetByIdAsync(1), Times.Once);
+            _uow.Verify(repo => repo.DoctorRepository.GetByIdAsync(1), Times.Once);
 
             Assert.NotNull(result);
             Assert.Equal(result.Name, doctor.Name);

@@ -3,7 +3,7 @@ using HealthMed.Shared.Repositories.Interfaces;
 
 namespace HealthMed.Patients.Interfaces.Repositories
 {
-    public interface IAppointmentRepository : IGenericRepository<Appointment>
+    public interface IAppointmentRepository : IGenericRepositoryDIO<Appointment>
     {
     }
 }

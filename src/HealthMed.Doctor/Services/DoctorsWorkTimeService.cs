@@ -1,6 +1,7 @@
 ﻿using HealthMed.Doctors.Entities;
 using HealthMed.Doctors.Interfaces.Repositories;
 using HealthMed.Doctors.Interfaces.Services;
+using HealthMed.Doctors.Interfaces.UnitOfWork;
 using HealthMed.Shared.Exceptions;
 using HealthMed.Shared.Util;
 
@@ -8,40 +9,49 @@ namespace HealthMed.Doctors.Services
 {
     public class DoctorsWorkTimeService : IDoctorsWorkTimeService 
     {
-        private readonly IDoctorsWorkTimeRepository _doctorsWorkTimeRepository;
         private readonly IDoctorService _doctorService;
         private readonly IUserContext _userContext;
+        private readonly IUnitOfWork _uow;
 
-        public DoctorsWorkTimeService(IDoctorsWorkTimeRepository doctorsWorkTimeRepository,
-                                      IUserContext userContext,
-                                      IDoctorService doctorService)
+        public DoctorsWorkTimeService(IUserContext userContext,
+                                      IDoctorService doctorService,
+                                      IUnitOfWork uow)
         {
-            _doctorsWorkTimeRepository = doctorsWorkTimeRepository;
             _userContext = userContext;
             _doctorService = doctorService;
+            _uow = uow;
         }
 
         public async Task<DoctorsWorkTime> AddWorkTime(int doctorId, DoctorsWorkTime doctorWorkTime)
         {
             await CheckDoctor(doctorId);
             await CheckRegister(doctorId, doctorWorkTime);
-            return await _doctorsWorkTimeRepository.AddAsync(doctorWorkTime);
+            
+            var dwt =  _uow.DoctorsWorkTimeRepository.Add(doctorWorkTime);
+            
+            _uow.Commit();
+
+            return dwt;
         }
 
         public async Task<DoctorsWorkTime> UpdateWorkTime(int doctorId, DoctorsWorkTime doctorWorkTime)
         {
             await CheckDoctor(doctorId);
-            return await _doctorsWorkTimeRepository.UpdateAsync(doctorWorkTime);
+            var dwt = _uow.DoctorsWorkTimeRepository.Update(doctorWorkTime);
+            
+            _uow.Commit();
+            
+            return dwt;
         }
 
         public async Task<IEnumerable<DoctorsWorkTime>> GetDoctorWorkTime(int doctorId)
         {
-            return await _doctorsWorkTimeRepository.FindByAsync(o => o.DoctorId == doctorId);
+            return await _uow.DoctorsWorkTimeRepository.GetDataAsync(o => o.DoctorId == doctorId);
         }
 
         public async Task IsValidWorkTime(DateTime dateAppointment, int doctorId)
         {
-            var doctorWorkTime = await _doctorsWorkTimeRepository.FirstOrDefaultAsync(o => o.DoctorId == doctorId && o.WeekDay == (int)dateAppointment.DayOfWeek);
+            var doctorWorkTime = await _uow.DoctorsWorkTimeRepository.FirstAsync(o => o.DoctorId == doctorId && o.WeekDay == (int)dateAppointment.DayOfWeek);
             if (doctorWorkTime == null) throw new InvalidOperationException("O médico não atende neste dia da semana.");
 
             var appointmentTime = dateAppointment.TimeOfDay;
@@ -55,7 +65,7 @@ namespace HealthMed.Doctors.Services
 
         private async Task CheckRegister(int doctorId, DoctorsWorkTime doctorWorkTime)
         {
-            var existentRegister = await _doctorsWorkTimeRepository.FirstOrDefaultAsync(o => o.DoctorId == doctorId && o.WeekDay == doctorWorkTime.WeekDay);
+            var existentRegister = await _uow.DoctorsWorkTimeRepository.FirstAsync(o => o.DoctorId == doctorId && o.WeekDay == doctorWorkTime.WeekDay);
             if (existentRegister is DoctorsWorkTime) throw new RegisterAlreadyExistsException($"Já existe um registro de horário para {(DayOfWeek)doctorWorkTime.WeekDay}");
         }
         private async Task CheckDoctor(int doctorId) 

@@ -1,6 +1,7 @@
 ﻿using HealthMed.Auth.Entities;
 using HealthMed.Auth.Interfaces.Services;
 using HealthMed.Auth.ViewModels;
+using HealthMed.Infra.Logs.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMed.Auth.Controllers
@@ -9,11 +10,14 @@ namespace HealthMed.Auth.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IUserService userService;
+        private readonly IUserService _userService;
+        private readonly ILoggerService<UsersController> _logger;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserService userService, 
+                               ILoggerService<UsersController> logger)
         {
-            this.userService = userService;
+            _userService = userService;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -22,7 +26,8 @@ namespace HealthMed.Auth.Controllers
         {
             try
             {
-                var token = await userService.Login(login.UserName, login.Password);
+                var token = await _userService.Login(login.UserName, login.Password);
+                _logger.Log($"User {login.UserName} logged in successfully.");
                 return Ok(token);
             }
             catch (Exception ex)
@@ -37,7 +42,7 @@ namespace HealthMed.Auth.Controllers
         {
             try
             {
-                var token = await userService.CreateUser(user);
+                var token = await _userService.CreateUser(user);
                 return Ok(token);
             }
             catch (Exception ex)

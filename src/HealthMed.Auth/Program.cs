@@ -4,6 +4,7 @@ using HealthMed.Auth.Interfaces.Services;
 using HealthMed.Auth.Repositories;
 using HealthMed.Auth.Repositories.Interfaces;
 using HealthMed.Auth.Services;
+using HealthMed.Infra.Logs.DI;
 using HealthMed.Shared.Dtos;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,12 +20,23 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+builder.Services.AddSingletonLogs();
+
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 builder.Services.AddSingleton(jwtSettings);
 
 builder.Services.AddDbContext<HealthMedDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Transient
 );
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy => policy
+            .AllowAnyOrigin() 
+            .AllowAnyMethod() 
+            .AllowAnyHeader());
+});
 
 
 builder.Services.AddControllers();
@@ -33,6 +45,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseCors("AllowAll");
+
 
 using (var scope = app.Services.CreateScope())
 {

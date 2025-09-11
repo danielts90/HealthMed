@@ -10,6 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Interfaces\Repositories\**" />
+    <Content Remove="Interfaces\Repositories\**" />
+    <EmbeddedResource Remove="Interfaces\Repositories\**" />
+    <None Remove="Interfaces\Repositories\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
       <PrivateAssets>all</PrivateAssets>
@@ -22,10 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\Repositories\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\HealthMed.Infra\HealthMed.Infra.csproj" />
     <ProjectReference Include="..\HealthMed.Shared\HealthMed.Shared.csproj" />
   </ItemGroup>
 

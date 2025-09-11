@@ -27,6 +27,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthMedDoctorsTest", "src
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMed.Patients", "src\HealthMed.Patients\HealthMed.Patients.csproj", "{3F07ED24-9B28-463E-A3E8-55F94457D3D0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMed.Infra", "src\HealthMed.Infra\HealthMed.Infra.csproj", "{C6B4869B-7591-7714-4E59-7A27226571B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +61,10 @@ Global
 		{3F07ED24-9B28-463E-A3E8-55F94457D3D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F07ED24-9B28-463E-A3E8-55F94457D3D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F07ED24-9B28-463E-A3E8-55F94457D3D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6B4869B-7591-7714-4E59-7A27226571B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6B4869B-7591-7714-4E59-7A27226571B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6B4869B-7591-7714-4E59-7A27226571B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6B4869B-7591-7714-4E59-7A27226571B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +80,8 @@ Global
 		{405743DF-A779-4259-8A84-98CD0E40687A} = {5E3DDCE9-939C-4629-A4AA-6F96AAA0808E}
 		{292CBB87-3EED-4E90-886E-2AA4A6F73FF5} = {FE5785C9-6B33-439F-BB1E-34F36310985F}
 		{3F07ED24-9B28-463E-A3E8-55F94457D3D0} = {15755508-BF84-49B0-BFA9-23B11522FFA4}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {76FF769B-28C0-442D-A8E2-E48C5910E25A}
+		{C6B4869B-7591-7714-4E59-7A27226571B0} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {00796D6C-95D3-4960-AED5-AEC2754849E6}

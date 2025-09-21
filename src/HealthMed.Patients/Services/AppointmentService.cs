@@ -1,7 +1,9 @@
 ﻿using HealthMed.Patients.Entities;
+using HealthMed.Patients.Interfaces.Factories;
 using HealthMed.Patients.Interfaces.Repositories;
 using HealthMed.Patients.Interfaces.Services;
 using HealthMed.Patients.Interfaces.UnitOfWork;
+using HealthMed.Shared;
 using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Enum;
 using HealthMed.Shared.Exceptions;
@@ -17,6 +19,7 @@ namespace HealthMed.Patients.Services
         private readonly IPatientService _patientService;
         private readonly ISendEndpointProvider _sendEndpointProvider;
         private readonly IEmailService _emailService;
+        private readonly ICreateAppointmentMessageFactory _createAppointmentMessageFactory;
         private readonly IUnitOfWork _uow;
 
 
@@ -24,13 +27,15 @@ namespace HealthMed.Patients.Services
         public AppointmentService(IPatientService patientService,
                                   ISendEndpointProvider sendEndpointProvider,
                                   IEmailService emailService,
-                                  IUnitOfWork uow)
+                                  IUnitOfWork uow,
+                                  ICreateAppointmentMessageFactory createAppointmentMessageFactory)
 
         {
             _patientService = patientService;
             _sendEndpointProvider = sendEndpointProvider;
             _emailService = emailService;
             _uow = uow;
+            _createAppointmentMessageFactory = createAppointmentMessageFactory;
         }
 
         public async Task<Appointment> AppointmentUpdatedDoctor(int apppointmentId, AppointmentStatus status)
@@ -45,16 +50,17 @@ namespace HealthMed.Patients.Services
 
             var statusMessage = status == AppointmentStatus.Accepted ? "<b>Confirmada<b/>" : "<b>Rejeitada<b/>";
 
-            await _emailService.SendMail(new EmailDto
-            {
-                To = patient.Email,
-                Subject = $"Consulta marcada para o dia {appointment.DateAppointment.ToString("f")} foi {statusMessage}",
-                Body = MailTemplates.appointmentUpdated.Replace("{{PACIENTE_NOME}}", patient.Name)
-                                                       .Replace("{{DATA_CONSULTA}}", appointment.DateAppointment.ToString("dd/MM/yyyy"))
-                                                       .Replace("{{HORA_CONSULTA}}", appointment.DateAppointment.ToString("HH:mm"))
-                                                       .Replace("{{MEDICO_NOME}}", appointment.DoctorName)
-                                                       .Replace("{{STATUS_CONSULTA}}", statusMessage),
-            });
+            var email = EmailBuilder.New()
+                            .To(patient.Email)
+                            .Subject($"Consulta marcada para o dia {appointment.DateAppointment.ToString("f")} foi {statusMessage}")
+                            .Body(MailTemplates.appointmentUpdated.Replace("{{PACIENTE_NOME}}", patient.Name)
+                                                                   .Replace("{{DATA_CONSULTA}}", appointment.DateAppointment.ToString("dd/MM/yyyy"))
+                                                                   .Replace("{{HORA_CONSULTA}}", appointment.DateAppointment.ToString("HH:mm"))
+                                                                   .Replace("{{MEDICO_NOME}}", appointment.DoctorName)
+                                                                   .Replace("{{STATUS_CONSULTA}}", statusMessage))
+                            .Build();
+
+            await _emailService.SendMail(email);
 
             return appointment;
         }
@@ -91,14 +97,7 @@ namespace HealthMed.Patients.Services
 
             _uow.Commit();
 
-            var createdAppointment = new AppointmentMessage 
-            {
-                PatientAppointmentId = appointment.Id,
-                PatientId = patient.Id,
-                PatientName = patient.Name, 
-                DoctorId = appointment.DoctorId,
-                DateAppointment = appointment.DateAppointment
-            };
+            var createdAppointment = _createAppointmentMessageFactory.CreateMessage(appointment, patient);
 
             var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("queue:patient-appointment-queue"));
             await endpoint.Send(createdAppointment);

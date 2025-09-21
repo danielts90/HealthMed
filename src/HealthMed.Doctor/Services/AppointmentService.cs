@@ -1,6 +1,7 @@
 ﻿using HealthMed.Doctors.Entities;
 using HealthMed.Doctors.Interfaces.Services;
 using HealthMed.Doctors.Interfaces.UnitOfWork;
+using HealthMed.Shared;
 using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Enum;
 using HealthMed.Shared.Templates;
@@ -44,15 +45,16 @@ namespace HealthMed.Doctors.Services
 
             _uow.Commit();
 
-            await _emailService.SendMail(new EmailDto
-            {
-                To = doctor.Email,
-                Subject = $"Nova consulta marcada para o dia {appointment.DateAppointment.ToString("f")}",
-                Body = MailTemplates.appointmentUpdated.Replace("{{PACIENTE_NOME}}", appointment.PatientName)
+            var email = EmailBuilder.New()
+                          .To(doctor.Email)
+                          .Subject($"Nova consulta marcada para o dia {appointment.DateAppointment.ToString("f")}")
+                          .Body(MailTemplates.appointmentUpdated.Replace("{{PACIENTE_NOME}}", appointment.PatientName)
                                                        .Replace("{{DATA_CONSULTA}}", appointment.DateAppointment.ToString("dd/MM/yyyy"))
-                                                       .Replace("{{HORA_CONSULTA}}",appointment.DateAppointment.ToString("HH:mm"))
-                                                       .Replace("{{MEDICO_NOME}}", doctor.Name)
-            });
+                                                       .Replace("{{HORA_CONSULTA}}", appointment.DateAppointment.ToString("HH:mm"))
+                                                       .Replace("{{MEDICO_NOME}}", doctor.Name))
+                          .Build();
+
+            await _emailService.SendMail(email);
 
             return appointment;
         }
@@ -134,16 +136,17 @@ namespace HealthMed.Doctors.Services
 
             _uow.Commit();
 
-            await _emailService.SendMail(new EmailDto
-            {
-                To = doctor.Email,
-                Subject = $"Consulta do dia {appointment.DateAppointment.ToString("f")} foi cancelada.",
-                Body = MailTemplates.canceledTemplate.Replace("{{PACIENTE_NOME}}", appointment.PatientName)
+            var email = EmailBuilder.New()
+                .To(doctor.Email)
+                .Subject($"Consulta do dia {appointment.DateAppointment.ToString("f")} foi cancelada.")
+                .Body(MailTemplates.canceledTemplate.Replace("{{PACIENTE_NOME}}", appointment.PatientName)
                                          .Replace("{{DATA_CONSULTA}}", appointment.DateAppointment.ToString("dd/MM/yyyy"))
                                          .Replace("{{HORA_CONSULTA}}", appointment.DateAppointment.ToString("HH:mm"))
                                          .Replace("{{MEDICO_NOME}}", doctor.Name)
-                                         .Replace("{{MOTIVO}}", cancelReason)
-            });
+                                         .Replace("{{MOTIVO}}", cancelReason))
+                .Build();
+
+            await _emailService.SendMail(email);
 
             return appointment;
         }

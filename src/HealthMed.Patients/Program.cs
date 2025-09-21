@@ -1,5 +1,7 @@
 using HealthMed.Patients.Consumers;
 using HealthMed.Patients.Context;
+using HealthMed.Patients.Factories;
+using HealthMed.Patients.Interfaces.Factories;
 using HealthMed.Patients.Interfaces.Repositories;
 using HealthMed.Patients.Interfaces.Services;
 using HealthMed.Patients.Interfaces.UnitOfWork;
@@ -27,6 +29,8 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IDoctorsService, DoctorsService>();
+
+builder.Services.AddScoped<ICreateAppointmentMessageFactory, CreateAppointmentMessageFactory>();
 
 var doctorApiUrl = builder.Configuration["Apis:Doctor"];
 

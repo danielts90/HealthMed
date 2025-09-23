@@ -1,7 +1,7 @@
 ﻿using HealthMed.Doctors.Entities;
 using HealthMed.Doctors.Interfaces.Services;
 using HealthMed.Doctors.Interfaces.UnitOfWork;
-using HealthMed.Shared;
+using HealthMed.Shared.Builders;
 using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Enum;
 using HealthMed.Shared.Templates;

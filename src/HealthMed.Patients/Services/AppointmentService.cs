@@ -3,7 +3,7 @@ using HealthMed.Patients.Interfaces.Factories;
 using HealthMed.Patients.Interfaces.Repositories;
 using HealthMed.Patients.Interfaces.Services;
 using HealthMed.Patients.Interfaces.UnitOfWork;
-using HealthMed.Shared;
+using HealthMed.Shared.Builders;
 using HealthMed.Shared.Dtos;
 using HealthMed.Shared.Enum;
 using HealthMed.Shared.Exceptions;
@@ -15,7 +15,6 @@ namespace HealthMed.Patients.Services
 {
     public class AppointmentService : IAppointmentService
     {
-        private readonly IAppointmentRepository _appointmentRepository;
         private readonly IPatientService _patientService;
         private readonly ISendEndpointProvider _sendEndpointProvider;
         private readonly IEmailService _emailService;
@@ -61,7 +60,6 @@ namespace HealthMed.Patients.Services
                             .Build();
 
             await _emailService.SendMail(email);
-
             return appointment;
         }
 
